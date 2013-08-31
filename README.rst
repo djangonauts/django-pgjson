@@ -1,5 +1,5 @@
-djorm-ext-pgarray
-=================
+djorm-ext-pgjson
+================
 
 PostgreSQL native json field support for Django.
 

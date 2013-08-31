@@ -13,6 +13,7 @@ setup(
     description = description.strip(),
     author = 'Andrey Antukh',
     author_email = 'niwi@niwi.be',
+    keywords = "django, postgresql, pgsql, json, field",
     maintainer = 'Andrey Antukh',
     maintainer_email = 'niwi@niwi.be',
     packages = find_packages(),
