@@ -17,7 +17,7 @@ class JSONField(models.Field):
         super(JSONField, self).__init__(*args, null=null, blank=blank,
                                         default=default, **kwargs)
     def db_type(self, connection):
-        return 'json' if get_version(connection) >= 90200 else 'text'
+        return 'json' if connection.vendor == 'postgresql' and get_version(connection) >= 90200 else 'text'
 
     def get_prep_value(self, value):
         return json.dumps(value, cls=DjangoJSONEncoder)
