@@ -9,7 +9,7 @@ from django.db.backends.postgresql_psycopg2.version import get_version
 from django.utils import six
 
 
-class JSONField(models.Field):
+class JSONField(six.with_metaclass(models.SubfieldBase, models.Field)):
     rx_int = re.compile(r'^[\d]+$')
     rx_float = re.compile(r'^([\d]+\.[\d]*|\.[\d]+)$')
 
