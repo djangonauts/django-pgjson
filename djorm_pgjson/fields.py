@@ -13,7 +13,7 @@ class JSONField(six.with_metaclass(models.SubfieldBase, models.Field)):
     rx_int = re.compile(r'^[\d]+$')
     rx_float = re.compile(r'^([\d]+\.[\d]*|\.[\d]+)$')
 
-    def __init__(self, null=True, blank=True, default='{}', *args, **kwargs):
+    def __init__(self, null=True, blank=True, default={}, *args, **kwargs):
         super(JSONField, self).__init__(*args, null=null, blank=blank,
                                         default=default, **kwargs)
     def db_type(self, connection):
