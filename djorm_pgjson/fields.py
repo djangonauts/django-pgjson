@@ -70,4 +70,6 @@ class JSONFormField(forms.CharField):
     widget = forms.Textarea
 
     def prepare_value(self, value):
+        if isinstance(value, six.string_types):
+            return value
         return json.dumps(value, cls=DjangoJSONEncoder)
