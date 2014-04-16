@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.3
+-----------
+
+- Minor fixes.
+
 Version 0.2
 -----------
 
