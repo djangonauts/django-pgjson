@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 description="""
-PostgreSQL native json field support for Django.
+PostgreSQL json field support for Django.
 """
 
 setup(
     name = "django-pgjson",
-    version = '0.3',
-    url = 'https://github.com/niwibe/djorm-ext-pgjson',
+    version = '0.1.0',
+    url = 'https://github.com/niwibe/djorm-pgjson',
     license = 'BSD',
     platforms = ['OS Independent'],
     description = description.strip(),

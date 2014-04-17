@@ -5,4 +5,4 @@ dist
 versiontools*
 build*
 *.egg*
-docs/_build
+doc/index.html
