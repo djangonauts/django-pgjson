@@ -1,0 +1,144 @@
+django-pgjson documentation
+===========================
+Andrey Antukh, <niwi@niwi.be>
+0.1.0, 2014-04-17
+
+:toc:
+:numbered:
+
+
+Introduction
+------------
+
+_django-pgjson_ is a little library that add a bridge for PostgreSQL json field to Django.
+
+Project Maturity
+----------------
+
+Since _django-pgjson_ is a young project there can be some API breakage.
+
+Install
+-------
+
+This section covers a installing _django-pgjson_ and its requirements.
+
+Requirements
+~~~~~~~~~~~~
+
+- Python 2.7 or 3.3+
+- Django 1.6 and 1.7
+- psycopg2 2.5.0+
+- PostgreSQL 9.2+
+
+Limitations
+~~~~~~~~~~~
+
+- Only supports PostgreSQL 9.2
+- Can not be used with other backends, it explictly use psycopg2 extensions system for
+  handling with json.
+- Only handles python dicts at this momment (should be improved in future releases).
+- No custom lookups for django 1.7 (should be improved in future releases).
+
+Stable
+~~~~~~
+
+[source, bash]
+----
+pip install django-pgjson
+----
+
+Development
+~~~~~~~~~~~
+
+[source, bash]
+----
+pip install -e git+git://github.com/niwibe/django-pgjson#egg=django-pgjson
+----
+
+Setup
+-----
+
+No additional steps are required, just use a field.
+
+
+Note to South users
+~~~~~~~~~~~~~~~~~~~
+
+If you keep getting errors like There is no South database module 'south.db.None'
+for your database., add the following to settings.py:
+
+[source, python]
+----
+SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
+----
+
+Usage
+-----
+
+The library provides this class:
+
+- `django_pgjson.fields.JsonField` +
+  An ORM field which stores python dict in an json type column.
+
+Model setup
+~~~~~~~~~~~
+
+.Model definition is straightforward:
+[source, python]
+----
+from django.db import models
+from django_pgjson.fields import JsonField
+
+class Something(models.Model):
+    name = models.CharField(max_length=32)
+    data = JsonField()  # can pass attributes like null, blank, ecc.
+----
+
+Now `data` attribute works like python standard dictionary.
+
+WARNING: PostgreSQL json field also can store arrays and any json valid value
+but, django_pgjson at this momment only handles python dict.
+
+Querying
+~~~~~~~~
+
+At this momment, no custom lookups are implemented for json field and PostgreSQL 9.3
+(the current stable release) does not have much operators for json field. On PostgreSQL 9.4
+json type is improved a lot and much other operators are added.
+
+.Simple query using *extra*
+[source, python]
+----
+# Lookup by "name" field on json object
+Something.objects.extra(where=["data->>'name' = %s"], params=["foo"])
+----
+
+
+Developers
+----------
+
+Running tests
+~~~~~~~~~~~~~
+
+Assuming one has the dependencies installed, and a PostgreSQL 9.0+ server up and running:
+
+[source, bash]
+----
+python runtests.py
+----
+
+How to contribute
+~~~~~~~~~~~~~~~~~
+
+- Follow PEP8, Style Guide for Python Code
+- Fork this repo
+- Write code
+- Write tests for your code
+- Ensure all tests pass
+- Document your changes
+- Send pull request
+
+Deprecation policy
+~~~~~~~~~~~~~~~~~~
+
+At any momment of time, django-pgjson developers will mantain support for two versions of django.
