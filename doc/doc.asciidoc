@@ -33,7 +33,7 @@ Requirements
 Limitations
 ~~~~~~~~~~~
 
-- Only supports PostgreSQL 9.2
+- Only supports PostgreSQL >= 9.2
 - Can not be used with other backends, it explictly use psycopg2 extensions system for
   handling with json.
 - Only handles python dicts at this momment (should be improved in future releases).
