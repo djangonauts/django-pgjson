@@ -12,6 +12,8 @@ Introduction
 
 _django-pgjson_ is a little library that add a bridge for PostgreSQL json field to Django.
 
+Is a little brother of link:https://github.com/djangonauts/django-hstore[django-hstore]
+
 Project Maturity
 ----------------
 
@@ -80,6 +82,7 @@ The library provides this class:
 - `django_pgjson.fields.JsonField` +
   An ORM field which stores python dict in an json type column.
 
+
 Model setup
 ~~~~~~~~~~~
 
@@ -98,6 +101,7 @@ Now `data` attribute works like python standard dictionary.
 
 WARNING: PostgreSQL json field also can store arrays and any json valid value
 but, django_pgjson at this momment only handles python dict.
+
 
 Querying
 ~~~~~~~~
@@ -126,6 +130,30 @@ Assuming one has the dependencies installed, and a PostgreSQL 9.0+ server up and
 ----
 python runtests.py
 ----
+
+
+Documentation
+~~~~~~~~~~~~~
+
+The documentation is written using asciidoc and if you want build it
+you should install the following dependencies: gnu make, asciidoc and pygments.
+
+.Build documentation
+[source,bash]
+----
+cd doc/
+make
+chromium index.html
+----
+
+.Deploy documentation
+[source, bash]
+----
+./build-docs.sh
+git push -u origin gh-pages
+git checkout master
+----
+
 
 How to contribute
 ~~~~~~~~~~~~~~~~~
