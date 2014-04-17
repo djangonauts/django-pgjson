@@ -33,6 +33,7 @@ asciidoc.install(2);
 <h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><em>django-pgjson</em> is a little library that add a bridge for PostgreSQL json field to Django.</p></div>
+<div class="paragraph"><p>Is a little brother of <a href="https://github.com/djangonauts/django-hstore">django-hstore</a></p></div>
 </div>
 </div>
 <div class="sect1">
@@ -182,7 +183,24 @@ json type is improved a lot and much other operators are added.</p></div>
 </pre></div></div></div>
 </div>
 <div class="sect2">
-<h3 id="_how_to_contribute">6.2. How to contribute</h3>
+<h3 id="_documentation">6.2. Documentation</h3>
+<div class="paragraph"><p>The documentation is written using asciidoc and if you want build it
+you should install the following dependencies: gnu make, asciidoc and pygments.</p></div>
+<div class="listingblock">
+<div class="title">Build documentation</div>
+<div class="content"><div class="highlight"><pre><span class="nb">cd </span>doc/
+make
+chromium index.html
+</pre></div></div></div>
+<div class="listingblock">
+<div class="title">Deploy documentation</div>
+<div class="content"><div class="highlight"><pre>./build-docs.sh
+git push -u origin gh-pages
+git checkout master
+</pre></div></div></div>
+</div>
+<div class="sect2">
+<h3 id="_how_to_contribute">6.3. How to contribute</h3>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -222,7 +240,7 @@ Send pull request
 </ul></div>
 </div>
 <div class="sect2">
-<h3 id="_deprecation_policy">6.3. Deprecation policy</h3>
+<h3 id="_deprecation_policy">6.4. Deprecation policy</h3>
 <div class="paragraph"><p>At any momment of time, django-pgjson developers will mantain support for two versions of django.</p></div>
 </div>
 </div>
@@ -232,7 +250,7 @@ Send pull request
 <div id="footer">
 <div id="footer-text">
 Version 0.1.0<br>
-Last updated 2014-04-17 17:02:10 CEST
+Last updated 2014-04-17 21:27:21 CEST
 </div>
 </div>
 </body>
