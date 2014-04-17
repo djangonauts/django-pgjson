@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="generator" content="AsciiDoc 8.6.9">
+<title>django-pgjson documentation</title>
+<link rel="stylesheet" href="static/niwi.css" type="text/css">
+<link rel="stylesheet" href="static/pygments.css" type="text/css">
+
+
+<script type="text/javascript" src="static/asciidoc.js"></script>
+<script type="text/javascript" src="static/niwi.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article" style="max-width:800px">
+<div id="header">
+<h1>django-pgjson documentation</h1>
+<span id="author">Andrey Antukh,</span><br>
+<span id="email" class="monospaced">&lt;<a href="mailto:niwi@niwi.be">niwi@niwi.be</a>&gt;</span><br>
+<span id="revnumber">version 0.1.0,</span>
+<span id="revdate">2014-04-17</span>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction">1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><em>django-pgjson</em> is a little library that add a bridge for PostgreSQL json field to Django.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_project_maturity">2. Project Maturity</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Since <em>django-pgjson</em> is a young project there can be some API breakage.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install">3. Install</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This section covers a installing <em>django-pgjson</em> and its requirements.</p></div>
+<div class="sect2">
+<h3 id="_requirements">3.1. Requirements</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+Python 2.7 or 3.3+
+</p>
+</li>
+<li>
+<p>
+Django 1.6 and 1.7
+</p>
+</li>
+<li>
+<p>
+psycopg2 2.5.0+
+</p>
+</li>
+<li>
+<p>
+PostgreSQL 9.2+
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_limitations">3.2. Limitations</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+Only supports PostgreSQL 9.2
+</p>
+</li>
+<li>
+<p>
+Can not be used with other backends, it explictly use psycopg2 extensions system for
+  handling with json.
+</p>
+</li>
+<li>
+<p>
+Only handles python dicts at this momment (should be improved in future releases).
+</p>
+</li>
+<li>
+<p>
+No custom lookups for django 1.7 (should be improved in future releases).
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_stable">3.3. Stable</h3>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>pip install django-pgjson
+</pre></div></div></div>
+</div>
+<div class="sect2">
+<h3 id="_development">3.4. Development</h3>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>pip install -e git+git://github.com/niwibe/django-pgjson#egg<span class="o">=</span>django-pgjson
+</pre></div></div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_setup">4. Setup</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>No additional steps are required, just use a field.</p></div>
+<div class="sect2">
+<h3 id="_note_to_south_users">4.1. Note to South users</h3>
+<div class="paragraph"><p>If you keep getting errors like There is no South database module <em>south.db.None</em>
+for your database., add the following to settings.py:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">SOUTH_DATABASE_ADAPTERS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;south.db.postgresql_psycopg2&#39;</span><span class="p">}</span>
+</pre></div></div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_usage">5. Usage</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The library provides this class:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">django_pgjson.fields.JsonField</span><br>
+  An ORM field which stores python dict in an json type column.
+</p>
+</li>
+</ul></div>
+<div class="sect2">
+<h3 id="_model_setup">5.1. Model setup</h3>
+<div class="listingblock">
+<div class="title">Model definition is straightforward:</div>
+<div class="content"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django_pgjson.fields</span> <span class="kn">import</span> <span class="n">JsonField</span>
+
+<span class="k">class</span> <span class="nc">Something</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">JsonField</span><span class="p">()</span>  <span class="c"># can pass attributes like null, blank, ecc.</span>
+</pre></div></div></div>
+<div class="paragraph"><p>Now <span class="monospaced">data</span> attribute works like python standard dictionary.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">PostgreSQL json field also can store arrays and any json valid value
+but, django_pgjson at this momment only handles python dict.</td>
+</tr></table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_querying">5.2. Querying</h3>
+<div class="paragraph"><p>At this momment, no custom lookups are implemented for json field and PostgreSQL 9.3
+(the current stable release) does not have much operators for json field. On PostgreSQL 9.4
+json type is improved a lot and much other operators are added.</p></div>
+<div class="listingblock">
+<div class="title">Simple query using <strong>extra</strong></div>
+<div class="content"><div class="highlight"><pre><span class="c"># Lookup by &quot;name&quot; field on json object</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">extra</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;data-&gt;&gt;&#39;name&#39; = </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">])</span>
+</pre></div></div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_developers">6. Developers</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_running_tests">6.1. Running tests</h3>
+<div class="paragraph"><p>Assuming one has the dependencies installed, and a PostgreSQL 9.0+ server up and running:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>python runtests.py
+</pre></div></div></div>
+</div>
+<div class="sect2">
+<h3 id="_how_to_contribute">6.2. How to contribute</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+Follow PEP8, Style Guide for Python Code
+</p>
+</li>
+<li>
+<p>
+Fork this repo
+</p>
+</li>
+<li>
+<p>
+Write code
+</p>
+</li>
+<li>
+<p>
+Write tests for your code
+</p>
+</li>
+<li>
+<p>
+Ensure all tests pass
+</p>
+</li>
+<li>
+<p>
+Document your changes
+</p>
+</li>
+<li>
+<p>
+Send pull request
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_deprecation_policy">6.3. Deprecation policy</h3>
+<div class="paragraph"><p>At any momment of time, django-pgjson developers will mantain support for two versions of django.</p></div>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Version 0.1.0<br>
+Last updated 2014-04-17 16:44:33 CEST
+</div>
+</div>
+</body>
+</html>
