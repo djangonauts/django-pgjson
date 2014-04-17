@@ -1,7 +1,6 @@
 import os, sys
 
 sys.path.insert(0, '..')
-sys.path.insert(0, '/home/niwi/devel/djorm-ext-expressions')
 
 PROJECT_ROOT = os.path.dirname(__file__)
 DEBUG = True

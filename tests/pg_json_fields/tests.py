@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 from django.contrib.admin import AdminSite, ModelAdmin
 
 from django.test import TestCase
 from django.core.serializers import serialize, deserialize
-
-from djorm_expressions.base import SqlExpression
-from djorm_pgjson.fields import JSONField
+from django_pgjson.fields import JsonField
 
 from .models import TextModel
 
 
-class JSONFieldTests(TestCase):
+class JsonFieldTests(TestCase):
     def setUp(self):
         TextModel.objects.all().delete()
 
@@ -21,38 +21,20 @@ class JSONFieldTests(TestCase):
         self.assertEqual(instance.data, {})
 
     def test_unicode(self):
-        obj = TextModel.objects.create(data=[u"Fóö", u"Пример", u"test"])
+        obj = TextModel.objects.create(data={"list": ["Fóö", "Пример", "test"]})
         obj = TextModel.objects.get(pk=obj.pk)
 
-        self.assertEqual(obj.data[1], u"Пример")
+        self.assertEqual(obj.data["list"][1], "Пример")
 
-    def test_correct_behavior_with_text(self):
-        obj = TextModel.objects.create(data="hello")
-        obj = TextModel.objects.get(pk=obj.pk)
-        self.assertEqual(obj.data, "hello")
+    # def test_key_lookup(self):
+    #     obj1 = TextModel.objects.create(data={"name": "foo"})
+    #     obj2 = TextModel.objects.create(data={"name": "bar"})
 
-    def test_correct_behavior_with_bool(self):
-        obj = TextModel.objects.create(data=True)
-        obj = TextModel.objects.get(pk=obj.pk)
-        self.assertEqual(obj.data, True)
-
-    def test_correct_behavior_with_int(self):
-        obj = TextModel.objects.create(data=1)
-        obj = TextModel.objects.get(pk=obj.pk)
-        self.assertEqual(obj.data, 1)
-
-    def test_correct_behavior_with_float_01(self):
-        obj = TextModel.objects.create(data=1.4)
-        obj = TextModel.objects.get(pk=obj.pk)
-        self.assertEqual(obj.data, 1.4)
-
-    def test_correct_behavior_with_float_02(self):
-        obj = TextModel.objects.create(data=0.4)
-        obj = TextModel.objects.get(pk=obj.pk)
-        self.assertEqual(obj.data, 0.4)
+    #     qs = TextModel.objects.filter(data__field_name="foo")
+    #     self.assertEqual(qs.count(), 1)
 
     def test_value_to_string_serializes_correctly(self):
-        obj = TextModel.objects.create(data=[1,2,3])
+        obj = TextModel.objects.create(data={"a": 1})
 
         serialized_obj = serialize('json', TextModel.objects.filter(pk=obj.pk))
         obj.delete()
@@ -61,8 +43,9 @@ class JSONFieldTests(TestCase):
 
         obj = deserialized_obj.object
         obj.save()
+        obj = obj.__class__.objects.get(pk=obj.pk)
 
-        self.assertEqual(obj.data, [1,2,3])
+        self.assertEqual(obj.data, {"a": 1})
 
     def test_to_python_serializes_xml_correctly(self):
         obj = TextModel.objects.create(data={"a": 0.2})
@@ -74,11 +57,12 @@ class JSONFieldTests(TestCase):
 
         obj = deserialized_obj.object
         obj.save()
+        obj = obj.__class__.objects.get(pk=obj.pk)
 
         self.assertEqual(obj.data, {"a": 0.2})
 
     def test_can_override_formfield(self):
-        model_field = JSONField()
+        model_field = JsonField()
         class FakeFieldClass(object):
             def __init__(self, *args, **kwargs):
                 pass

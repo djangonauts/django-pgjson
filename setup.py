@@ -5,7 +5,7 @@ PostgreSQL native json field support for Django.
 """
 
 setup(
-    name = "djorm-ext-pgjson",
+    name = "django-pgjson",
     version = '0.3',
     url = 'https://github.com/niwibe/djorm-ext-pgjson',
     license = 'BSD',
