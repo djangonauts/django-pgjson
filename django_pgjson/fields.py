@@ -64,7 +64,7 @@ class JsonFormField(forms.CharField):
 try:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules([(
-        (JSONField,),
+        (JsonField,),
         [],
         {
             'blank': ['blank', { 'default': True }],
