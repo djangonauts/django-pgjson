@@ -1,7 +1,7 @@
 django-pgjson documentation
 ===========================
 Andrey Antukh, <niwi@niwi.be>
-0.1.2, 2014-04-17
+0.1.3, 2014-04-17
 
 :toc:
 :numbered:
@@ -110,8 +110,10 @@ but, django_pgjson at this momment only handles python dict.
 Querying
 ~~~~~~~~
 
-If you are using django 1.7, you can use index or key lookup for filtering:
+Key or Index lookup
+^^^^^^^^^^^^^^^^^^^
 
+.If you are using django 1.7, you can use index or key lookup for filtering
 [source, pycon]
 ----
 >>> Something.object.bulk_create([
@@ -122,8 +124,7 @@ If you are using django 1.7, you can use index or key lookup for filtering:
 1
 ----
 
-It also works for array indexes:
-
+.It also works for array indexes
 [source, pycon]
 ----
 >>> Something.object.bulk_create([
@@ -134,18 +135,38 @@ It also works for array indexes:
 1
 ----
 
-In other case, you can execute queries using postgresql operators thaks tu
-django's queryset `.extra()` method:
-
-[source, python]
+.Same example but using Django < 1.7
+[source, pycon]
 ----
 >>> Something.objects.extra(where=["data->>'name' = %s"], params=["foo"]).count()
 1
 ----
 
 
+Array length lookup
+^^^^^^^^^^^^^^^^^^^
+
+With same data as previous example:
+
+.With Django >= 1.7
+[source, pycon]
+----
+>>> Something.objects.filter(data__array_length=4).count()
+2
+----
+
+
+.With Django < 1.7
+[source, pycon]
+----
+>>> Something.objects.extra(where=["json_array_length(data) = %s"],
+...                         params=["foo"]).count()
+2
+----
+
+
 NOTE: At this momment, with postgresql 9.3 as last stable version there is only a
-limited set of native operators for json type. When postgresql 9.4 is released, 
+limited set of native operators for json type. When postgresql 9.4 is released,
 more lookups will be added.
 
 
