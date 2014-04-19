@@ -1,7 +1,7 @@
 django-pgjson documentation
 ===========================
 Andrey Antukh, <niwi@niwi.be>
-0.1.0, 2014-04-17
+0.1.2, 2014-04-17
 
 :toc:
 :numbered:
@@ -32,13 +32,17 @@ Requirements
 - psycopg2 2.5.0+
 - PostgreSQL 9.2+
 
+Supports
+~~~~~~~~
+
+- All json types. Including simple strings, floats, integers, booleans and null's.
+- Works well with python serialization.
+
 Limitations
 ~~~~~~~~~~~
 
 - Only supports PostgreSQL >= 9.2
-- Can not be used with other backends, it explictly use psycopg2 extensions system for
-  handling with json.
-- Only handles python dicts at this momment (should be improved in future releases).
+- No django admin support at this momment.
 - No custom lookups for django 1.7 (should be improved in future releases).
 
 Stable
@@ -106,16 +110,43 @@ but, django_pgjson at this momment only handles python dict.
 Querying
 ~~~~~~~~
 
-At this momment, no custom lookups are implemented for json field and PostgreSQL 9.3
-(the current stable release) does not have much operators for json field. On PostgreSQL 9.4
-json type is improved a lot and much other operators are added.
+At this momment with postgresql 9.3 as last stable version it has very limited set
+of native operators for json type (with 9.4 much other operators will added).
 
-.Simple query using *extra*
+If you are using django 1.7, you can use index or key lookup for filtering:
+
+[source, pycon]
+----
+>>> Something.object.bulk_create([
+...     Something(data={"name": "foo"}),
+...     Something(data={"name": "bar"})
+... ])
+>>> Something.objects.filter(data__at_name="foo").count()
+1
+----
+
+It also works for array indexes:
+
+[source, pycon]
+----
+>>> Something.object.bulk_create([
+...     Something(data=[1,2,3,4]),
+...     Something(data=[4,5,6,7])
+... ])
+>>> Something.objects.filter(data__at_0=4).count()
+1
+----
+
+In other case, you can execute queries using postgresql operators thaks tu
+django's queryset `.extra()` method:
+
 [source, python]
 ----
-# Lookup by "name" field on json object
-Something.objects.extra(where=["data->>'name' = %s"], params=["foo"])
+>>> Something.objects.extra(where=["data->>'name' = %s"], params=["foo"]).count()
+1
 ----
+
+NOTE: when postgresql 9.4 is released, more lookups will be added.
 
 
 Developers
