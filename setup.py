@@ -6,7 +6,7 @@ PostgreSQL json field support for Django.
 
 setup(
     name = "django-pgjson",
-    version = '0.1.1',
+    version = '0.1.2',
     url = 'https://github.com/niwibe/djorm-pgjson',
     license = 'BSD',
     platforms = ['OS Independent'],
