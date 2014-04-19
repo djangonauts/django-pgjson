@@ -21,7 +21,7 @@ asciidoc.install(2);
 <h1>django-pgjson documentation</h1>
 <span id="author">Andrey Antukh,</span><br>
 <span id="email" class="monospaced">&lt;<a href="mailto:niwi@niwi.be">niwi@niwi.be</a>&gt;</span><br>
-<span id="revnumber">version 0.1.0,</span>
+<span id="revnumber">version 0.1.2,</span>
 <span id="revdate">2014-04-17</span>
 <div id="toc">
   <div id="toctitle">Table of Contents</div>
@@ -72,7 +72,22 @@ PostgreSQL 9.2+
 </ul></div>
 </div>
 <div class="sect2">
-<h3 id="_limitations">3.2. Limitations</h3>
+<h3 id="_supports">3.2. Supports</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+All json types. Including simple strings, floats, integers, booleans and null&#8217;s.
+</p>
+</li>
+<li>
+<p>
+Works well with python serialization.
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_limitations">3.3. Limitations</h3>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -81,13 +96,7 @@ Only supports PostgreSQL &gt;= 9.2
 </li>
 <li>
 <p>
-Can not be used with other backends, it explictly use psycopg2 extensions system for
-  handling with json.
-</p>
-</li>
-<li>
-<p>
-Only handles python dicts at this momment (should be improved in future releases).
+No django admin support at this momment.
 </p>
 </li>
 <li>
@@ -98,13 +107,13 @@ No custom lookups for django 1.7 (should be improved in future releases).
 </ul></div>
 </div>
 <div class="sect2">
-<h3 id="_stable">3.3. Stable</h3>
+<h3 id="_stable">3.4. Stable</h3>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre>pip install django-pgjson
 </pre></div></div></div>
 </div>
 <div class="sect2">
-<h3 id="_development">3.4. Development</h3>
+<h3 id="_development">3.5. Development</h3>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre>pip install -e git+git://github.com/niwibe/django-pgjson#egg<span class="o">=</span>django-pgjson
 </pre></div></div></div>
@@ -161,14 +170,40 @@ but, django_pgjson at this momment only handles python dict.</td>
 </div>
 <div class="sect2">
 <h3 id="_querying">5.2. Querying</h3>
-<div class="paragraph"><p>At this momment, no custom lookups are implemented for json field and PostgreSQL 9.3
-(the current stable release) does not have much operators for json field. On PostgreSQL 9.4
-json type is improved a lot and much other operators are added.</p></div>
+<div class="paragraph"><p>At this momment with postgresql 9.3 as last stable version it has very limited set
+of native operators for json type (with 9.4 much other operators will added).</p></div>
+<div class="paragraph"><p>If you are using django 1.7, you can use index or key lookup for filtering:</p></div>
 <div class="listingblock">
-<div class="title">Simple query using <strong>extra</strong></div>
-<div class="content"><div class="highlight"><pre><span class="c"># Lookup by &quot;name&quot; field on json object</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">extra</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;data-&gt;&gt;&#39;name&#39; = </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">])</span>
+<div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">bulk_create</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;foo&quot;</span><span class="p">}),</span>
+<span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;bar&quot;</span><span class="p">})</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__at_name</span><span class="o">=</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1</span>
 </pre></div></div></div>
+<div class="paragraph"><p>It also works for array indexes:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">bulk_create</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__at_0</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1</span>
+</pre></div></div></div>
+<div class="paragraph"><p>In other case, you can execute queries using postgresql operators thaks tu
+django&#8217;s queryset <span class="monospaced">.extra()</span> method:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">extra</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;data-&gt;&gt;&#39;name&#39; = </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="mi">1</span>
+</pre></div></div></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">when postgresql 9.4 is released, more lookups will be added.</td>
+</tr></table>
+</div>
 </div>
 </div>
 </div>
@@ -249,8 +284,8 @@ Send pull request
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 0.1.0<br>
-Last updated 2014-04-17 21:27:21 CEST
+Version 0.1.2<br>
+Last updated 2014-04-19 03:12:23 CEST
 </div>
 </div>
 </body>
