@@ -23,15 +23,70 @@ class JsonFieldTests(TestCase):
     def test_unicode(self):
         obj = TextModel.objects.create(data={"list": ["Fóö", "Пример", "test"]})
         obj = TextModel.objects.get(pk=obj.pk)
-
         self.assertEqual(obj.data["list"][1], "Пример")
 
-    # def test_key_lookup(self):
-    #     obj1 = TextModel.objects.create(data={"name": "foo"})
-    #     obj2 = TextModel.objects.create(data={"name": "bar"})
+    def test_array_serialization(self):
+        obj = TextModel.objects.create(data=["Fóö", "Пример", "test"])
+        obj = TextModel.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data[1], "Пример")
 
-    #     qs = TextModel.objects.filter(data__field_name="foo")
-    #     self.assertEqual(qs.count(), 1)
+    def test_primitives_bool(self):
+        obj = TextModel.objects.create(data=True)
+        obj = TextModel.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, True)
+
+    def test_primitives_str(self):
+        obj = TextModel.objects.create(data="Foo")
+        obj = TextModel.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, "Foo")
+
+    def test_primitives_int(self):
+        obj = TextModel.objects.create(data=3)
+        obj = TextModel.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, 3)
+
+    def test_primitives_float(self):
+        obj = TextModel.objects.create(data=3.0)
+        obj = TextModel.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, 3.0)
+
+    def test_primitives_null(self):
+        obj = TextModel.objects.create(data=None)
+        obj = TextModel.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, None)
+
+    def test_key_lookup(self):
+        obj1 = TextModel.objects.create(data={"name": "foo"})
+        obj2 = TextModel.objects.create(data={"name": "bar"})
+
+        qs = TextModel.objects.filter(data__at_name="foo")
+        self.assertEqual(qs.count(), 1)
+
+    def test_key_lookup2(self):
+        obj1 = TextModel.objects.create(data={"name": {"full": "foo"}})
+        obj2 = TextModel.objects.create(data={"name": {"full": "bar"}})
+        qs = TextModel.objects.filter(data__at_name={"full": "foo"})
+        self.assertEqual(qs.count(), 1)
+
+    def test_key_lookup3(self):
+        obj1 = TextModel.objects.create(data={"num": 2})
+        obj2 = TextModel.objects.create(data={"num": 3})
+        qs = TextModel.objects.filter(data__at_num=2)
+        self.assertEqual(qs.count(), 1)
+
+    def test_key_lookup4(self):
+        obj1 = TextModel.objects.create(data=[1,2,3,4])
+        obj2 = TextModel.objects.create(data=[5,6,7,8])
+
+        qs = TextModel.objects.filter(data__at_2=3)
+        self.assertEqual(qs.count(), 1)
+
+    def test_key_lookup5(self):
+        obj1 = TextModel.objects.create(data=[{"foo": 1}])
+        obj2 = TextModel.objects.create(data=[{"bar": 1}])
+
+        qs = TextModel.objects.filter(data__at_0={"foo": 1})
+        self.assertEqual(qs.count(), 1)
 
     def test_value_to_string_serializes_correctly(self):
         obj = TextModel.objects.create(data={"a": 1})
