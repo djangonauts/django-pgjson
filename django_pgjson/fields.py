@@ -69,7 +69,10 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
 if django.get_version() >= '1.7':
     from .lookups import ExactLookup
+    from .lookups import ArrayLengthLookup
+
     JsonField.register_lookup(ExactLookup)
+    JsonField.register_lookup(ArrayLengthLookup)
 
 
 class JsonFormField(forms.CharField):

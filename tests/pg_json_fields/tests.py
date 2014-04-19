@@ -88,6 +88,13 @@ class JsonFieldTests(TestCase):
         qs = TextModel.objects.filter(data__at_0={"foo": 1})
         self.assertEqual(qs.count(), 1)
 
+    def test_array_length(self):
+        obj1 = TextModel.objects.create(data=[1,2,3])
+        obj2 = TextModel.objects.create(data=[5,6,7,8,9])
+
+        qs = TextModel.objects.filter(data__array_length=3)
+        self.assertEqual(qs.count(), 1)
+
     def test_value_to_string_serializes_correctly(self):
         obj = TextModel.objects.create(data={"a": 1})
 
