@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 
 from django.utils.functional import cached_property
-from django.db.models import Transform
+from django.utils import six
+from django.db.models import Transform, Lookup
 
 
 class KeyTransform(Transform):
     def __init__(self, key, base_field, *args, **kwargs):
         super(KeyTransform, self).__init__(*args, **kwargs)
-        self.key = key
+        try:
+            self.key = int(key)
+        except ValueError:
+            self.key = key
+
         self.base_field = base_field
 
     def as_sql(self, qn, connection):
         lhs, params = qn.compile(self.lhs)
-        import pdb; pdb.set_trace()
+
+        if isinstance(self.key, int):
+            return "%s->>%s" % (lhs, self.key), params
 
         return "%s->>'%s'" % (lhs, self.key), params
 
@@ -29,3 +36,18 @@ class KeyTransformFactory(object):
     def __call__(self, *args, **kwargs):
         return KeyTransform(self.key, self.base_field, *args, **kwargs)
 
+
+class ExactLookup(Lookup):
+    lookup_name = 'exact'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+
+        if len(rhs_params) == 1 and hasattr(rhs_params[0], "adapted"):
+            adapted = rhs_params[0].adapted
+            if isinstance(adapted, six.string_types):
+                rhs_params[0] = adapted
+
+        params = lhs_params + rhs_params
+        return '%s = %s' % (lhs, rhs), params

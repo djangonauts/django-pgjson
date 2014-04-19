@@ -34,21 +34,42 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         value = self._get_val_from_obj(obj)
         return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder)
 
+    def to_python(self, value):
+        if not isinstance(value, six.string_types):
+            return value
+
+        try:
+            return json.loads(value)
+        except ValueError:
+            return value
+
     def formfield(self, **kwargs):
         defaults = {'form_class': JsonFormField}
         defaults.update(kwargs)
         return super(JsonField, self).formfield(**defaults)
 
-    # if django.get_version() >= '1.7':
-    #     def get_transform(self, name):
-    #         from .lookups import KeyTransformFactory
-    #         transform = super(JsonField, self).get_transform(name)
-    #         if transform:
-    #             return transform
-    #         if not re.match("field_\w+", name):
-    #             return None
-    #         _, key = name.rsplit("_", 1)
-    #         return KeyTransformFactory(key, self)
+    def get_db_prep_value(self, value, connection, prepared=False):
+        value = super(JsonField, self).get_db_prep_value(value, connection, prepared=prepared)
+        return JsonAdapter(value)
+
+    if django.get_version() >= '1.7':
+        def get_transform(self, name):
+            from .lookups import KeyTransformFactory
+
+            transform = super(JsonField, self).get_transform(name)
+            if transform:
+                return transform
+
+            if not re.match("at_\w+", name):
+                return None
+
+            _, key = name.split("_", 1)
+            return KeyTransformFactory(key, self)
+
+
+if django.get_version() >= '1.7':
+    from .lookups import ExactLookup
+    JsonField.register_lookup(ExactLookup)
 
 
 class JsonFormField(forms.CharField):
