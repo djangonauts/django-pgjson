@@ -110,9 +110,6 @@ but, django_pgjson at this momment only handles python dict.
 Querying
 ~~~~~~~~
 
-At this momment with postgresql 9.3 as last stable version it has very limited set
-of native operators for json type (with 9.4 much other operators will added).
-
 If you are using django 1.7, you can use index or key lookup for filtering:
 
 [source, pycon]
@@ -146,7 +143,10 @@ django's queryset `.extra()` method:
 1
 ----
 
-NOTE: when postgresql 9.4 is released, more lookups will be added.
+
+NOTE: At this momment, with postgresql 9.3 as last stable version there is only a
+limited set of native operators for json type. When postgresql 9.4 is released, 
+more lookups will be added.
 
 
 Developers
