@@ -170,8 +170,6 @@ but, django_pgjson at this momment only handles python dict.</td>
 </div>
 <div class="sect2">
 <h3 id="_querying">5.2. Querying</h3>
-<div class="paragraph"><p>At this momment with postgresql 9.3 as last stable version it has very limited set
-of native operators for json type (with 9.4 much other operators will added).</p></div>
 <div class="paragraph"><p>If you are using django 1.7, you can use index or key lookup for filtering:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">bulk_create</span><span class="p">([</span>
@@ -201,7 +199,9 @@ django&#8217;s queryset <span class="monospaced">.extra()</span> method:</p></di
 <td class="icon">
 <div class="title">Note</div>
 </td>
-<td class="content">when postgresql 9.4 is released, more lookups will be added.</td>
+<td class="content">At this momment, with postgresql 9.3 as last stable version there is only a
+limited set of native operators for json type. When postgresql 9.4 is released,
+more lookups will be added.</td>
 </tr></table>
 </div>
 </div>
@@ -285,7 +285,7 @@ Send pull request
 <div id="footer">
 <div id="footer-text">
 Version 0.1.2<br>
-Last updated 2014-04-19 03:12:23 CEST
+Last updated 2014-04-19 03:20:04 CEST
 </div>
 </div>
 </body>
