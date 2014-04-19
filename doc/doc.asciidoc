@@ -43,7 +43,7 @@ Limitations
 
 - Only supports PostgreSQL >= 9.2
 - No django admin support at this momment.
-- No custom lookups for django 1.7 (should be improved in future releases).
+- Limited set of django 1.7 lookups (will be improved with postgresql 9.4)
 
 Stable
 ~~~~~~
