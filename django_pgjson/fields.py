@@ -23,6 +23,10 @@ class JsonAdapter(psycopg2.extras.Json):
 psycopg2.extensions.register_adapter(dict, JsonAdapter)
 psycopg2.extras.register_default_json(loads=json.loads)
 
+# so that psycopg2 knows also to convert jsonb fields correctly
+# http://schinckel.net/2014/05/24/python,-postgres-and-jsonb/
+psycopg2.extras.register_json(loads=json.loads, oid=3802, array_oid=3807)
+
 
 class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
     def db_type(self, connection):
@@ -67,12 +71,23 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
             return KeyTransformFactory(key, self)
 
 
+class JsonBField(JsonField):
+    def db_type(self, connection):
+        if get_version(connection) < 90400:
+            raise RuntimeError("django_pgjson: PostgreSQL >= 9.4 is required for jsonb support.")
+        return "jsonb"
+
+
 if django.get_version() >= '1.7':
     from .lookups import ExactLookup
-    from .lookups import ArrayLengthLookup
+    from .lookups import ArrayLengthLookup, JsonBArrayLengthLookup
 
     JsonField.register_lookup(ExactLookup)
     JsonField.register_lookup(ArrayLengthLookup)
+
+    JsonBField.register_lookup(ExactLookup)
+    JsonBField.register_lookup(JsonBArrayLengthLookup)
+
 
 
 class JsonFormField(forms.CharField):
@@ -95,5 +110,15 @@ try:
             'null': ['null', { 'default': True }],
         },
     )], (r'^django_pgjson\.fields\.JsonField',))
+
+    add_introspection_rules([(
+        (JsonBField,),
+        [],
+        {
+        'blank': ['blank', { 'default': True }],
+        'null': ['null', { 'default': True }],
+        },
+    )], (r'^django_pgjson\.fields\.JsonBField',))
+
 except ImportError:
     pass
