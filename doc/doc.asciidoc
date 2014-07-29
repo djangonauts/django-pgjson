@@ -90,7 +90,7 @@ The library provides these classes:
 - `django_pgjson.fields.JsonField` +
   An ORM field which stores python dict in an json type column.
 - `django_pgjson.fields.JsonBField` + Same as above, but using the new jsonb
-  field in PostgreSQL >= 9.4
+  field in PostgreSQL >= 9.4. Experimental.
 
 
 Model setup
@@ -175,6 +175,27 @@ NOTE: At this momment, with postgresql 9.3 as last stable version there is only 
 limited set of native operators for json type. When postgresql 9.4 is released,
 more lookups will be added.
 
+jsonb containment lookup
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you are using django 1.7 and PostgreSQL >= 9.4, you can use the special jsonb
+containment operator, which can be accelerated by a GiN index on the jsonb
+field.
+
+.Use the containment operator as follows:
+[source, pycon]
+----
+>>> Something.object.bulk_create([
+...     Something(data={"name": "foo", "tags": ["sad", "romantic"]}),
+...     Something(data={"name": "bar", "tags": ["sad", "intelligent"]})
+... ])
+>>> Something.objects.filter(data__jcontains={"tags": ["sad"]}).count()
+2
+----
+
+We will implement support for more of the jsonb operators in the near future.
+See http://www.postgresql.org/docs/9.4/static/datatype-json.html for more
+information on what's possible, and feel free to send a pull request.
 
 Developers
 ----------

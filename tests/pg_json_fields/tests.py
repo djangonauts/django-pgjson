@@ -136,6 +136,28 @@ class JsonBFieldTests(JsonFieldTests):
     def setUp(self):
         self.model_class = TextModelB
 
+    def test_jcontains_lookup1(self):
+        obj1 = self.model_class.objects.create(data=[1, 2, [1, 3]])
+        obj2 = self.model_class.objects.create(data=[4, 5, 6])
+
+        qs = self.model_class.objects.filter(data__jcontains=[[1, 3]])
+        self.assertEqual(qs.count(), 1)
+
+        qs = self.model_class.objects.filter(data__jcontains=[4, 6])
+        self.assertEqual(qs.count(), 1)
+
+        qs = self.model_class.objects.filter(data__jcontains='[4, 6]')
+        self.assertEqual(qs.count(), 1)
+
+    def test_jcontains_lookup2(self):
+        obj1 = self.model_class.objects.create(data={"title": "An action story", "tags": ["violent", "romantic"]})
+        obj1 = self.model_class.objects.create(data={"title": "A sad story", "tags": ["sad", "romantic"]})
+        obj2 = self.model_class.objects.create(data=[4, 5, 6])
+
+        qs = self.model_class.objects.filter(data__jcontains={"tags": ["sad"]})
+        self.assertEqual(qs.count(), 1)
+
+
 
 #class ArrayFormFieldTests(TestCase):
 #    def test_regular_forms(self):
