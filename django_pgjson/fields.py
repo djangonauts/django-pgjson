@@ -77,16 +77,33 @@ class JsonBField(JsonField):
             raise RuntimeError("django_pgjson: PostgreSQL >= 9.4 is required for jsonb support.")
         return "jsonb"
 
+    def get_db_prep_lookup(self, lookup_type, value, connection,
+                           prepared=False):
+
+        retval = super(JsonBField, self).get_db_prep_lookup(lookup_type, value, connection, prepared)
+        if lookup_type == 'jcontains':
+            # retval is [value] where value is either a string or a
+            # dict / list. in the former case, we assume it's json
+            # encoded and we do nothing. In the latter case, we have
+            # to json-encode -- cpb
+            if not isinstance(retval[0], six.string_types):
+                newval = json.dumps(retval[0], cls=DjangoJSONEncoder)
+                retval[0] = newval
+
+        return retval
+
+
 
 if django.get_version() >= '1.7':
     from .lookups import ExactLookup
-    from .lookups import ArrayLengthLookup, JsonBArrayLengthLookup
+    from .lookups import ArrayLengthLookup, JsonBArrayLengthLookup, JsonBContainsLookup
 
     JsonField.register_lookup(ExactLookup)
     JsonField.register_lookup(ArrayLengthLookup)
 
     JsonBField.register_lookup(ExactLookup)
     JsonBField.register_lookup(JsonBArrayLengthLookup)
+    JsonBField.register_lookup(JsonBContainsLookup)
 
 
 
