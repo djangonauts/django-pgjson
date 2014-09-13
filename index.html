@@ -21,7 +21,7 @@ asciidoc.install(2);
 <h1>django-pgjson documentation</h1>
 <span id="author">Andrey Antukh,</span><br>
 <span id="email" class="monospaced">&lt;<a href="mailto:niwi@niwi.be">niwi@niwi.be</a>&gt;</span><br>
-<span id="revnumber">version 0.1.2,</span>
+<span id="revnumber">version 0.1.3,</span>
 <span id="revdate">2014-04-17</span>
 <div id="toc">
   <div id="toctitle">Table of Contents</div>
@@ -29,6 +29,11 @@ asciidoc.install(2);
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph"><p>Experimental jsonb support by Charl P. Botha &lt;<a href="mailto:cpbotha@vxlabs.com">cpbotha@vxlabs.com</a>&gt;</p></div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
@@ -84,6 +89,11 @@ All json types. Including simple strings, floats, integers, booleans and null&#8
 Works well with python serialization.
 </p>
 </li>
+<li>
+<p>
+Experimental: jsonb support in PostgreSQL &gt;= 9.4
+</p>
+</li>
 </ul></div>
 </div>
 <div class="sect2">
@@ -92,6 +102,11 @@ Works well with python serialization.
 <li>
 <p>
 Only supports PostgreSQL &gt;= 9.2
+</p>
+</li>
+<li>
+<p>
+PostgeSQL 9.4 is required for jsonb.
 </p>
 </li>
 <li>
@@ -137,12 +152,18 @@ for your database., add the following to settings.py:</p></div>
 <div class="sect1">
 <h2 id="_usage">5. Usage</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>The library provides this class:</p></div>
+<div class="paragraph"><p>The library provides these classes:</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
 <span class="monospaced">django_pgjson.fields.JsonField</span><br>
   An ORM field which stores python dict in an json type column.
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">django_pgjson.fields.JsonBField</span> + Same as above, but using the new jsonb
+  field in PostgreSQL &gt;= 9.4. Experimental.
 </p>
 </li>
 </ul></div>
@@ -170,8 +191,10 @@ but, django_pgjson at this momment only handles python dict.</td>
 </div>
 <div class="sect2">
 <h3 id="_querying">5.2. Querying</h3>
-<div class="paragraph"><p>If you are using django 1.7, you can use index or key lookup for filtering:</p></div>
+<div class="sect3">
+<h4 id="_key_or_index_lookup">5.2.1. Key or Index lookup</h4>
 <div class="listingblock">
+<div class="title">If you are using django 1.7, you can use index or key lookup for filtering</div>
 <div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">bulk_create</span><span class="p">([</span>
 <span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;foo&quot;</span><span class="p">}),</span>
 <span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;bar&quot;</span><span class="p">})</span>
@@ -179,8 +202,8 @@ but, django_pgjson at this momment only handles python dict.</td>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__at_name</span><span class="o">=</span><span class="s">&quot;foo&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 <span class="go">1</span>
 </pre></div></div></div>
-<div class="paragraph"><p>It also works for array indexes:</p></div>
 <div class="listingblock">
+<div class="title">It also works for array indexes</div>
 <div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">bulk_create</span><span class="p">([</span>
 <span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]),</span>
 <span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
@@ -188,11 +211,25 @@ but, django_pgjson at this momment only handles python dict.</td>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__at_0</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 <span class="go">1</span>
 </pre></div></div></div>
-<div class="paragraph"><p>In other case, you can execute queries using postgresql operators thaks tu
-django&#8217;s queryset <span class="monospaced">.extra()</span> method:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">extra</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;data-&gt;&gt;&#39;name&#39; = </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-<span class="mi">1</span>
+<div class="title">Same example but using Django &lt; 1.7</div>
+<div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">extra</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;data-&gt;&gt;&#39;name&#39; = </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1</span>
+</pre></div></div></div>
+</div>
+<div class="sect3">
+<h4 id="_array_length_lookup">5.2.2. Array length lookup</h4>
+<div class="paragraph"><p>With same data as previous example:</p></div>
+<div class="listingblock">
+<div class="title">With Django &gt;= 1.7</div>
+<div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__array_length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2</span>
+</pre></div></div></div>
+<div class="listingblock">
+<div class="title">With Django &lt; 1.7</div>
+<div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">extra</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;json_array_length(data) = </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">],</span>
+<span class="gp">... </span>                        <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2</span>
 </pre></div></div></div>
 <div class="admonitionblock">
 <table><tr>
@@ -203,6 +240,25 @@ django&#8217;s queryset <span class="monospaced">.extra()</span> method:</p></di
 limited set of native operators for json type. When postgresql 9.4 is released,
 more lookups will be added.</td>
 </tr></table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_jsonb_containment_lookup">5.2.3. jsonb containment lookup</h4>
+<div class="paragraph"><p>If you are using django 1.7 and PostgreSQL &gt;= 9.4, you can use the special jsonb
+containment operator, which can be accelerated by a GiN index on the jsonb
+field.</p></div>
+<div class="listingblock">
+<div class="title">Use the containment operator as follows:</div>
+<div class="content"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">bulk_create</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;sad&quot;</span><span class="p">,</span> <span class="s">&quot;romantic&quot;</span><span class="p">]}),</span>
+<span class="gp">... </span>    <span class="n">Something</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;bar&quot;</span><span class="p">,</span> <span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;sad&quot;</span><span class="p">,</span> <span class="s">&quot;intelligent&quot;</span><span class="p">]})</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__jcontains</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;sad&quot;</span><span class="p">]})</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2</span>
+</pre></div></div></div>
+<div class="paragraph"><p>We will implement support for more of the jsonb operators in the near future.
+See <a href="http://www.postgresql.org/docs/9.4/static/datatype-json.html">http://www.postgresql.org/docs/9.4/static/datatype-json.html</a> for more
+information on what&#8217;s possible, and feel free to send a pull request.</p></div>
 </div>
 </div>
 </div>
@@ -284,8 +340,8 @@ Send pull request
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 0.1.2<br>
-Last updated 2014-04-19 03:26:40 CEST
+Version 0.1.3<br>
+Last updated 2014-09-13 09:40:54 CEST
 </div>
 </div>
 </body>
