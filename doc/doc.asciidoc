@@ -1,7 +1,7 @@
 django-pgjson documentation
 ===========================
 Andrey Antukh, <niwi@niwi.be>
-0.1.3, 2014-04-17
+0.2.0, 2014-09-13
 
 Experimental jsonb support by Charl P. Botha <cpbotha@vxlabs.com>
 
