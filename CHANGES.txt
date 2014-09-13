@@ -1,12 +1,13 @@
 Changelog
 =========
 
-0.1.3
+0.2.0
 -----
 
-Date: unreleased
+Date: 2014-09-13
 
 - Add array_length lookup.
+- Add jsonb support (by @cpbotha).
 
 0.1.2
 -----
