@@ -9,13 +9,20 @@ from django.test import TestCase
 from django.core.serializers import serialize, deserialize
 from django_pgjson.fields import JsonField, JsonBField
 
-from .models import TextModel, TextModelB
+from .models import TextModel, TextModelB, TextModelWithDefault
 
 
 class JsonFieldTests(TestCase):
     def setUp(self):
         self.model_class = TextModel
         self.model_class.objects.all().delete()
+
+    def test_default_create(self):
+        instance1 = TextModelWithDefault.objects.create()
+        instance2 = TextModelWithDefault.objects.get(pk=instance1.pk)
+
+        self.assertEqual(instance1.data, {})
+        self.assertEqual(instance2.data, {})
 
     def test_empty_create(self):
         instance = self.model_class.objects.create(data={})

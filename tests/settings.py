@@ -17,6 +17,14 @@ DATABASES = {
     }
 }
 
+MIDDLEWARE_CLASSES = [
+    "django.middleware.common.CommonMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+]
+
+
 TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en'
 ADMIN_MEDIA_PREFIX = '/static/admin/'

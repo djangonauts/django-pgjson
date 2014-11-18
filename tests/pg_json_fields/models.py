@@ -9,3 +9,6 @@ class TextModel(models.Model):
 
 class TextModelB(models.Model):
     data = JsonBField()
+
+class TextModelWithDefault(models.Model):
+    data = JsonField(blank=True, default={})
