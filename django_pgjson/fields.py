@@ -29,6 +29,8 @@ psycopg2.extras.register_json(loads=json.loads, oid=3802, array_oid=3807)
 
 
 class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
+    empty_strings_allowed = False
+
     def db_type(self, connection):
         if get_version(connection) < 90200:
             raise RuntimeError("django_pgjson does not supports postgresql version < 9.2")
@@ -39,13 +41,9 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder)
 
     def to_python(self, value):
-        if not isinstance(value, six.string_types):
-            return value
-
-        try:
-            return json.loads(value)
-        except ValueError:
-            return value
+        if isinstance(value, six.string_types):
+            value = json.loads(value)
+        return value
 
     def formfield(self, **kwargs):
         defaults = {'form_class': JsonFormField}
@@ -54,7 +52,9 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super(JsonField, self).get_db_prep_value(value, connection, prepared=prepared)
-        return JsonAdapter(value)
+        if not isinstance(value, six.string_types):
+            value = JsonAdapter(value)
+        return value
 
     if django.get_version() >= '1.7':
         def get_transform(self, name):
