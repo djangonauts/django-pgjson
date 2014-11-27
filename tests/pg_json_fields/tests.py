@@ -44,10 +44,10 @@ class JsonFieldTests(TestCase):
         obj = self.model_class.objects.get(pk=obj.pk)
         self.assertEqual(obj.data, True)
 
-    # def test_primitives_str(self):
-    #     obj = self.model_class.objects.create(data="Foo")
-    #     obj = self.model_class.objects.get(pk=obj.pk)
-    #     self.assertEqual(obj.data, "Foo")
+    def test_primitives_str(self):
+        obj = self.model_class.objects.create(data="Fóö")
+        obj = self.model_class.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, "Fóö")
 
     def test_primitives_int(self):
         obj = self.model_class.objects.create(data=3)

@@ -42,7 +42,10 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def to_python(self, value):
         if isinstance(value, six.string_types):
-            value = json.loads(value)
+            try:
+                value = json.loads(value)
+            except ValueError:
+                pass
         return value
 
     def formfield(self, **kwargs):
@@ -52,9 +55,9 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def get_db_prep_value(self, value, connection, prepared=False):
         value = super(JsonField, self).get_db_prep_value(value, connection, prepared=prepared)
-        if not isinstance(value, six.string_types):
-            value = JsonAdapter(value)
-        return value
+        if self.null and value is None:
+            return None
+        return JsonAdapter(value)
 
     if django.get_version() >= '1.7':
         def get_transform(self, name):
