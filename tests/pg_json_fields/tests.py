@@ -49,6 +49,11 @@ class JsonFieldTests(TestCase):
         obj = self.model_class.objects.get(pk=obj.pk)
         self.assertEqual(obj.data, "Fóö")
 
+    def test_primitives_str_valid_json(self):
+        obj = self.model_class.objects.create(data='["Fóö", 3.1415]')
+        obj = self.model_class.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, ["Fóö", 3.1415])
+
     def test_primitives_int(self):
         obj = self.model_class.objects.create(data=3)
         obj = self.model_class.objects.get(pk=obj.pk)
