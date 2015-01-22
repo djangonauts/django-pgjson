@@ -5,14 +5,20 @@ import re
 import django
 
 from django.db.backends.postgresql_psycopg2.version import get_version
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django import forms
 from django.utils import six
+from django.utils.module_loading import import_string
 
 import psycopg2
 import psycopg2.extensions
 import psycopg2.extras
+
+from .conf import settings
+
+
+def get_encoder_class():
+    return import_string(settings.PGJSON_ENCODER_CLASS)
 
 
 class JsonAdapter(psycopg2.extras.Json):
@@ -22,7 +28,7 @@ class JsonAdapter(psycopg2.extras.Json):
         super(JsonAdapter, self).__init__(*args, **kwargs)
 
     def dumps(self, obj):
-        return json.dumps(obj, cls=DjangoJSONEncoder, **self.json_dump_args)
+        return json.dumps(obj, cls=get_encoder_class(), **self.json_dump_args)
 
 
 psycopg2.extensions.register_adapter(dict, JsonAdapter)
@@ -47,7 +53,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder,
+        return json.dumps(self.get_prep_value(value), cls=get_encoder_class(),
                           **self.json_dump_args)
 
     def get_default(self):
@@ -108,7 +114,7 @@ class JsonBField(JsonField):
         """
         if lookup_type in ['jcontains']:
             if not isinstance(value, six.string_types):
-                value = json.dumps(value, cls=DjangoJSONEncoder,
+                value = json.dumps(value, cls=get_encoder_class(),
                                    **self.json_dump_args)
         if lookup_type in ['jhas_any', 'jhas_all']:
             if isinstance(value, six.string_types):
@@ -145,7 +151,6 @@ if django.get_version() >= '1.7':
 
 def jsonFormField(json_dump_args_):
     class JsonFormField(forms.CharField):
-
         json_dump_args = json_dump_args_
 
         widget = forms.Textarea
@@ -153,7 +158,7 @@ def jsonFormField(json_dump_args_):
         def prepare_value(self, value):
             if isinstance(value, six.string_types):
                 return value
-            return json.dumps(value, cls=DjangoJSONEncoder,
+            return json.dumps(value, cls=get_encoder_class,
                               **self.json_dump_args)
     return JsonFormField
 

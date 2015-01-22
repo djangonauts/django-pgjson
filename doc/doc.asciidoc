@@ -92,6 +92,11 @@ The library provides these classes:
 - `django_pgjson.fields.JsonBField` + Same as above, but using the new jsonb
   field in PostgreSQL >= 9.4. Experimental.
 
+Configuration
+~~~~~~~~~~~~~
+
+- `PGJSON_ENCODER_CLASS` (default: `django.core.serializers.json.DjangoJSONEncoder`) +
+  set this to a custom JSON encoder class to serialize additional data types.
 
 Model setup
 ~~~~~~~~~~~

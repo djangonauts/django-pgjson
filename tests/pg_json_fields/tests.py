@@ -3,11 +3,12 @@
 from __future__ import unicode_literals
 import json
 
-import django
+import django, uuid
 from django.contrib.admin import AdminSite, ModelAdmin
 
 from django.test import TestCase
 from django.core.serializers import serialize, deserialize
+from django.test.utils import override_settings
 from django_pgjson.fields import JsonField, JsonBField
 
 from .models import TextModel, TextModelB, TextModelWithDefault
@@ -70,6 +71,17 @@ class JsonFieldTests(TestCase):
         obj = self.model_class.objects.create(data=None)
         obj = self.model_class.objects.get(pk=obj.pk)
         self.assertIsNone(obj.data)
+
+    def test_uuid_not_supported_by_default_json_encoder(self):
+        with self.assertRaises(TypeError):
+            self.model_class.objects.create(data=uuid.uuid4())
+
+    @override_settings(PGJSON_ENCODER_CLASS='pg_json_fields.encoders.CustomJSONEncoder')
+    def test_uuid_support_with_custom_json_encoder(self):
+        value = uuid.uuid4()
+        obj = self.model_class.objects.create(data=value)
+        obj = self.model_class.objects.get(pk=obj.pk)
+        self.assertEqual(obj.data, value.hex)
 
     def test_value_to_string_serializes_correctly(self):
         obj = self.model_class.objects.create(data={"a": 1})

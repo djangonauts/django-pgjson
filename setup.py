@@ -20,7 +20,7 @@ setup(
     maintainer_email = "niwi@niwi.be",
     packages = find_packages(),
     include_package_data = False,
-    install_requires = [],
+    install_requires = ['django-appconf'],
     zip_safe = False,
     classifiers = [
         "Development Status :: 4 - Beta",
