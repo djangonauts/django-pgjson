@@ -1,5 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
+
 from django.forms.models import ModelForm
+
 from .models import IntModel
 
 

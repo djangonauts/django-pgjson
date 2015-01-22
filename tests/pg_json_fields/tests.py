@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 from __future__ import unicode_literals
 import json
 
 import django, uuid
-from django.contrib.admin import AdminSite, ModelAdmin
 
-from django.test import TestCase
 from django.core.serializers import serialize, deserialize
+from django.test import TestCase
 from django.test.utils import override_settings
-from django_pgjson.fields import JsonField, JsonBField
+
+from django_pgjson.fields import JsonField
 
 from .models import TextModel, TextModelB, TextModelWithDefault
 from .models import TextModelWithIndent
@@ -113,6 +113,7 @@ class JsonFieldTests(TestCase):
 
     def test_can_override_formfield(self):
         model_field = JsonField()
+
         class FakeFieldClass(object):
             def __init__(self, *args, **kwargs):
                 pass
@@ -127,76 +128,76 @@ if django.VERSION[:2] > (1, 6):
             self.model_class.objects.all().delete()
 
         def test_key_lookup(self):
-            obj1 = self.model_class.objects.create(data={"name": "foo"})
-            obj2 = self.model_class.objects.create(data={"name": "bar"})
+            self.model_class.objects.create(data={"name": "foo"})
+            self.model_class.objects.create(data={"name": "bar"})
 
             qs = self.model_class.objects.filter(data__at_name="foo")
             self.assertEqual(qs.count(), 1)
 
         # def test_key_lookup2(self):
-        #     obj1 = self.model_class.objects.create(data={"name": {"full": "foo"}})
-        #     obj2 = self.model_class.objects.create(data={"name": {"full": "bar"}})
+        #     self.model_class.objects.create(data={"name": {"full": "foo"}})
+        #     self.model_class.objects.create(data={"name": {"full": "bar"}})
         #     qs = self.model_class.objects.filter(data__at_name={"full": "foo"})
         #     self.assertEqual(qs.count(), 1)
 
         def test_key_lookup3(self):
-            obj1 = self.model_class.objects.create(data={"num": 2})
-            obj2 = self.model_class.objects.create(data={"num": 3})
+            self.model_class.objects.create(data={"num": 2})
+            self.model_class.objects.create(data={"num": 3})
             qs = self.model_class.objects.filter(data__at_num=2)
             self.assertEqual(qs.count(), 1)
 
         def test_key_lookup4(self):
-            obj1 = self.model_class.objects.create(data=[1,2,3,4])
-            obj2 = self.model_class.objects.create(data=[5,6,7,8])
+            self.model_class.objects.create(data=[1, 2, 3, 4])
+            self.model_class.objects.create(data=[5, 6, 7, 8])
 
             qs = self.model_class.objects.filter(data__at_2=3)
             self.assertEqual(qs.count(), 1)
 
         # def test_key_lookup5(self):
-        #     obj1 = self.model_class.objects.create(data=[{"foo": 1}])
-        #     obj2 = self.model_class.objects.create(data=[{"bar": 1}])
+        #     self.model_class.objects.create(data=[{"foo": 1}])
+        #     self.model_class.objects.create(data=[{"bar": 1}])
         #
         #     qs = self.model_class.objects.filter(data__at_0={"foo": 1})
         #     self.assertEqual(qs.count(), 1)
 
         def test_key_lookup_in(self):
-            obj1 = self.model_class.objects.create(data={"name": "foo"})
-            obj2 = self.model_class.objects.create(data={"name": "bar"})
+            self.model_class.objects.create(data={"name": "foo"})
+            self.model_class.objects.create(data={"name": "bar"})
 
             qs = self.model_class.objects.filter(data__at_name__in=["foo", "bar"])
             self.assertEqual(qs.count(), 2)
 
         def test_key_lookup_isnull1(self):
-            obj1 = self.model_class.objects.create(data={"name": "foo"})
-            obj2 = self.model_class.objects.create(data={"name": "bar"})
+            self.model_class.objects.create(data={"name": "foo"})
+            self.model_class.objects.create(data={"name": "bar"})
 
             qs = self.model_class.objects.filter(data__at_name__isnull=True)
             self.assertEqual(qs.count(), 0)
 
         def test_key_lookup_isnull2(self):
-            obj1 = self.model_class.objects.create(data={"name": "foo"})
-            obj2 = self.model_class.objects.create(data={"name": "bar"})
+            self.model_class.objects.create(data={"name": "foo"})
+            self.model_class.objects.create(data={"name": "bar"})
 
             qs = self.model_class.objects.filter(data__at_name__isnull=False)
             self.assertEqual(qs.count(), 2)
 
         def test_key_lookup_isnull3(self):
-            obj1 = self.model_class.objects.create(data={"name": "foo"})
-            obj2 = self.model_class.objects.create(data={"name": "bar"})
+            self.model_class.objects.create(data={"name": "foo"})
+            self.model_class.objects.create(data={"name": "bar"})
 
             qs = self.model_class.objects.filter(data__at_notfound__isnull=True)
             self.assertEqual(qs.count(), 2)
 
         def test_key_lookup_isnull4(self):
-            obj1 = self.model_class.objects.create(data={"name": "foo"})
-            obj2 = self.model_class.objects.create(data={"name": "bar"})
+            self.model_class.objects.create(data={"name": "foo"})
+            self.model_class.objects.create(data={"name": "bar"})
 
             qs = self.model_class.objects.filter(data__at_notfound__isnull=False)
             self.assertEqual(qs.count(), 0)
 
         def test_array_length(self):
-            obj1 = self.model_class.objects.create(data=[1,2,3])
-            obj2 = self.model_class.objects.create(data=[5,6,7,8,9])
+            self.model_class.objects.create(data=[1, 2, 3])
+            self.model_class.objects.create(data=[5, 6, 7, 8, 9])
 
             qs = self.model_class.objects.filter(data__array_length=3)
             self.assertEqual(qs.count(), 1)
@@ -214,8 +215,8 @@ class JsonBFieldTests(JsonFieldTests):
         self.model_class = TextModelB
 
     def test_jcontains_lookup1(self):
-        obj1 = self.model_class.objects.create(data=[1, 2, [1, 3]])
-        obj2 = self.model_class.objects.create(data=[4, 5, 6])
+        self.model_class.objects.create(data=[1, 2, [1, 3]])
+        self.model_class.objects.create(data=[4, 5, 6])
 
         qs = self.model_class.objects.filter(data__jcontains=[[1, 3]])
         self.assertEqual(qs.count(), 1)
@@ -227,9 +228,9 @@ class JsonBFieldTests(JsonFieldTests):
         self.assertEqual(qs.count(), 1)
 
     def test_jcontains_lookup2(self):
-        obj1 = self.model_class.objects.create(data={"title": "An action story", "tags": ["violent", "romantic"]})
-        obj1 = self.model_class.objects.create(data={"title": "A sad story", "tags": ["sad", "romantic"]})
-        obj2 = self.model_class.objects.create(data=[4, 5, 6])
+        self.model_class.objects.create(data={"title": "An action story", "tags": ["violent", "romantic"]})
+        self.model_class.objects.create(data={"title": "A sad story", "tags": ["sad", "romantic"]})
+        self.model_class.objects.create(data=[4, 5, 6])
 
         qs = self.model_class.objects.filter(data__jcontains={"tags": ["sad"]})
         self.assertEqual(qs.count(), 1)

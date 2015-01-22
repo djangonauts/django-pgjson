@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 import uuid
+
 from django.core.serializers.json import DjangoJSONEncoder
 
 

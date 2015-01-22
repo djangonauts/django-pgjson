@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 from appconf import AppConf
 from django.conf import settings  # noqa - do not remove

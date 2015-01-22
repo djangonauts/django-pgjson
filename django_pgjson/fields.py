@@ -4,15 +4,15 @@ import json
 import re
 import django
 
-from django.db.backends.postgresql_psycopg2.version import get_version
-from django.db import models
-from django import forms
-from django.utils import six
-from django.utils.module_loading import import_string
-
 import psycopg2
 import psycopg2.extensions
 import psycopg2.extras
+
+from django import forms
+from django.db import models
+from django.db.backends.postgresql_psycopg2.version import get_version
+from django.utils import six
+from django.utils.module_loading import import_string
 
 from .conf import settings
 
@@ -130,7 +130,6 @@ class JsonBField(JsonField):
                 raise TypeError('jhas lookup requires str or int')
         return value
 
-
 if django.get_version() >= '1.7':
     from .lookups import ExactLookup
     from .lookups import (ArrayLengthLookup, JsonBArrayLengthLookup, JsonBContainsLookup,
@@ -147,12 +146,9 @@ if django.get_version() >= '1.7':
     JsonBField.register_lookup(JsonBHasAllLookup)
 
 
-# return a class of JsonFormField
-
 def jsonFormField(json_dump_args_):
     class JsonFormField(forms.CharField):
         json_dump_args = json_dump_args_
-
         widget = forms.Textarea
 
         def prepare_value(self, value):
@@ -170,8 +166,8 @@ try:
         (JsonField,),
         [],
         {
-            'blank': ['blank', { 'default': True }],
-            'null': ['null', { 'default': True }],
+            'blank': ['blank', {'default': True}],
+            'null': ['null', {'default': True}],
         },
     )], (r'^django_pgjson\.fields\.JsonField',))
 
@@ -179,8 +175,8 @@ try:
         (JsonBField,),
         [],
         {
-        'blank': ['blank', { 'default': True }],
-        'null': ['null', { 'default': True }],
+            'blank': ['blank', {'default': True}],
+            'null': ['null', {'default': True}],
         },
     )], (r'^django_pgjson\.fields\.JsonBField',))
 
