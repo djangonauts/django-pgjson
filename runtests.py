@@ -9,6 +9,8 @@ if __name__ == "__main__":
     from django.core.management import execute_from_command_line
     args = sys.argv
     args.insert(1, "test")
-    args.insert(2, "pg_json_fields")
+
+    if len(args) == 2:
+        args.insert(2, "pg_json_fields")
 
     execute_from_command_line(args)
