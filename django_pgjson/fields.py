@@ -40,6 +40,14 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         value = self._get_val_from_obj(obj)
         return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder)
 
+    def get_default(self):
+        if self.has_default():
+            if callable(self.default):
+                return self.default()
+            return self.default
+
+        return None
+
     def to_python(self, value):
         if isinstance(value, six.string_types):
             try:
