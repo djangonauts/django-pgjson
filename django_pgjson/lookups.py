@@ -2,10 +2,13 @@
 
 from django.utils.functional import cached_property
 from django.utils import six
-from django.db.models import Transform, Lookup
+from django.db.models import Transform, Lookup, CharField
 
 
 class KeyTransform(Transform):
+
+    output_field = CharField()
+
     def __init__(self, key, base_field, *args, **kwargs):
         super(KeyTransform, self).__init__(*args, **kwargs)
         try:
