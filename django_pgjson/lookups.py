@@ -19,9 +19,9 @@ class KeyTransform(Transform):
         lhs, params = qn.compile(self.lhs)
 
         if isinstance(self.key, int):
-            return "%s->>%s" % (lhs, self.key), params
+            return "(%s->>%s)" % (lhs, self.key), params
 
-        return "%s->>'%s'" % (lhs, self.key), params
+        return "(%s->>'%s')" % (lhs, self.key), params
 
     @cached_property
     def output_type(self):
