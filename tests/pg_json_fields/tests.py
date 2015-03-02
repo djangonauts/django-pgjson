@@ -152,6 +152,34 @@ if django.VERSION[:2] > (1, 6):
             qs = self.model_class.objects.filter(data__at_name__in=["foo", "bar"])
             self.assertEqual(qs.count(), 2)
 
+        def test_key_lookup_isnull1(self):
+            obj1 = self.model_class.objects.create(data={"name": "foo"})
+            obj2 = self.model_class.objects.create(data={"name": "bar"})
+
+            qs = self.model_class.objects.filter(data__at_name__isnull=True)
+            self.assertEqual(qs.count(), 0)
+
+        def test_key_lookup_isnull2(self):
+            obj1 = self.model_class.objects.create(data={"name": "foo"})
+            obj2 = self.model_class.objects.create(data={"name": "bar"})
+
+            qs = self.model_class.objects.filter(data__at_name__isnull=False)
+            self.assertEqual(qs.count(), 2)
+
+        def test_key_lookup_isnull3(self):
+            obj1 = self.model_class.objects.create(data={"name": "foo"})
+            obj2 = self.model_class.objects.create(data={"name": "bar"})
+
+            qs = self.model_class.objects.filter(data__at_notfound__isnull=True)
+            self.assertEqual(qs.count(), 2)
+
+        def test_key_lookup_isnull4(self):
+            obj1 = self.model_class.objects.create(data={"name": "foo"})
+            obj2 = self.model_class.objects.create(data={"name": "bar"})
+
+            qs = self.model_class.objects.filter(data__at_notfound__isnull=False)
+            self.assertEqual(qs.count(), 0)
+
         def test_array_length(self):
             obj1 = self.model_class.objects.create(data=[1,2,3])
             obj2 = self.model_class.objects.create(data=[5,6,7,8,9])
