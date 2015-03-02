@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.2.3
+-----
+
+Date: 2015-03-02
+
+- Bugfixes related to _at_name lookup (thanks to @lanzz)
+- Bugfixes related to __isnull lookup (thanks to @lanzz)
+
+
 0.2.2
 -----
 
