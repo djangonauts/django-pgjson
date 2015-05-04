@@ -88,26 +88,36 @@ class JsonBField(JsonField):
             raise RuntimeError("django_pgjson: PostgreSQL >= 9.4 is required for jsonb support.")
         return "jsonb"
 
-    def get_db_prep_lookup(self, lookup_type, value, connection,
-                           prepared=False):
+    def get_prep_lookup(self, lookup_type, value, prepared=False):
+        """ Cleanup value for the jsonb lookup types
 
-        retval = super(JsonBField, self).get_db_prep_lookup(lookup_type, value, connection, prepared)
-        if lookup_type == 'jcontains':
-            # retval is [value] where value is either a string or a
-            # dict / list. in the former case, we assume it's json
-            # encoded and we do nothing. In the latter case, we have
-            # to json-encode -- cpb
-            if not isinstance(retval[0], six.string_types):
-                newval = json.dumps(retval[0], cls=DjangoJSONEncoder)
-                retval[0] = newval
+        contains requires json encoded string
+        has_any and has_all require array of string_types
+        has requires string, but we can easily convert int to string
 
-        return retval
-
+        """
+        if lookup_type in ['jcontains']:
+            if not isinstance(value, six.string_types):
+                value = json.dumps(value, cls=DjangoJSONEncoder)
+        if lookup_type in ['jhas_any', 'jhas_all']:
+            if isinstance(value, six.string_types):
+                value = [value]
+            # Quickly coerce the following:
+            #   any iterable to array
+            #   non-string values to strings
+            value = ['%s' % v for v in value]
+        elif lookup_type in ['jhas'] and not isinstance(value, six.string_types):
+            if isinstance(value, six.integer_types):
+                value = str(value)
+            else:
+                raise TypeError('jhas lookup requires str or int')
+        return value
 
 
 if django.get_version() >= '1.7':
     from .lookups import ExactLookup
-    from .lookups import ArrayLengthLookup, JsonBArrayLengthLookup, JsonBContainsLookup
+    from .lookups import (ArrayLengthLookup, JsonBArrayLengthLookup, JsonBContainsLookup,
+                          JsonBHasLookup, JsonBHasAnyLookup, JsonBHasAllLookup)
 
     JsonField.register_lookup(ExactLookup)
     JsonField.register_lookup(ArrayLengthLookup)
@@ -115,6 +125,9 @@ if django.get_version() >= '1.7':
     JsonBField.register_lookup(ExactLookup)
     JsonBField.register_lookup(JsonBArrayLengthLookup)
     JsonBField.register_lookup(JsonBContainsLookup)
+    JsonBField.register_lookup(JsonBHasLookup)
+    JsonBField.register_lookup(JsonBHasAnyLookup)
+    JsonBField.register_lookup(JsonBHasAllLookup)
 
 
 

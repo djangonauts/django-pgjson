@@ -108,3 +108,36 @@ class JsonBContainsLookup(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
         return "{0} @> {1}::jsonb".format(lhs, rhs), params
+
+
+class JsonBHasLookup(Lookup):
+    """ JsonB specific lookup for the has (?) operator """
+    lookup_name = 'jhas'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return "{0} ? {1}".format(lhs, rhs), params
+
+
+class JsonBHasAnyLookup(Lookup):
+    """ JsonB specific lookup for the has any (?|) operator """
+    lookup_name = 'jhas_any'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return "{0} ?| {1}".format(lhs, rhs), params
+
+
+class JsonBHasAllLookup(Lookup):
+    """ JsonB specific lookup for the has all (?&) operator """
+    lookup_name = 'jhas_all'
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        rhs, rhs_params = self.process_rhs(qn, connection)
+        params = lhs_params + rhs_params
+        return "{0} ?& {1}".format(lhs, rhs), params
