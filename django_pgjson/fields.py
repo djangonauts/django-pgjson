@@ -16,6 +16,13 @@ import psycopg2.extras
 
 
 class JsonAdapter(psycopg2.extras.Json):
+
+    def __init__(self, *args, **kwargs):
+        self.indent = kwargs.pop('indent', None)
+        self.sort_keys = kwargs.pop('sort_keys', False)
+        super(JsonAdapter, self).__init__(*args, **kwargs)
+
+
     def dumps(self, obj):
         return json.dumps(obj, cls=DjangoJSONEncoder)
 
@@ -31,6 +38,11 @@ psycopg2.extras.register_json(loads=json.loads, oid=3802, array_oid=3807)
 class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
     empty_strings_allowed = False
 
+    def __init__(self, *args, **kwargs):
+        self.indent = kwargs.pop('indent', None)
+        self.sort_keys = kwargs.pop('sort_keys', False)
+        super(JsonField, self).__init__(*args, **kwargs)
+
     def db_type(self, connection):
         if get_version(connection) < 90200:
             raise RuntimeError("django_pgjson does not supports postgresql version < 9.2")
@@ -38,7 +50,8 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder)
+        return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder,
+                          indent=self.indent, sort_keys=self.sort_keys)
 
     def get_default(self):
         if self.has_default():
@@ -57,7 +70,8 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return value
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': JsonFormField}
+        defaults = {'form_class': jsonFormField(indent_=self.indent,
+                                                sort_keys_=self.sort_keys)}
         defaults.update(kwargs)
         return super(JsonField, self).formfield(**defaults)
 
@@ -98,7 +112,8 @@ class JsonBField(JsonField):
         """
         if lookup_type in ['jcontains']:
             if not isinstance(value, six.string_types):
-                value = json.dumps(value, cls=DjangoJSONEncoder)
+                value = json.dumps(value, cls=DjangoJSONEncoder,
+                                   indent=self.indent, sort_keys=self.sort_keys)
         if lookup_type in ['jhas_any', 'jhas_all']:
             if isinstance(value, six.string_types):
                 value = [value]
@@ -130,14 +145,22 @@ if django.get_version() >= '1.7':
     JsonBField.register_lookup(JsonBHasAllLookup)
 
 
+# return a class of JsonFormField
 
-class JsonFormField(forms.CharField):
-    widget = forms.Textarea
+def jsonFormField(indent_=None, sort_keys_=False):
+    class JsonFormField(forms.CharField):
 
-    def prepare_value(self, value):
-        if isinstance(value, six.string_types):
-            return value
-        return json.dumps(value, cls=DjangoJSONEncoder)
+        indent = indent_
+        sort_keys = sort_keys_
+
+        widget = forms.Textarea
+
+        def prepare_value(self, value):
+            if isinstance(value, six.string_types):
+                return value
+            return json.dumps(value, cls=DjangoJSONEncoder,
+                              indent=self.indent, sort_keys=self.sort_keys)
+    return JsonFormField
 
 
 # South compatibility
