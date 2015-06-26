@@ -14,4 +14,4 @@ class TextModelWithDefault(models.Model):
     data = JsonField(blank=True, default={})
 
 class TextModelWithIndent(models.Model):
-    data = JsonField(indent=2)
+    data = JsonField(json_dump_args={'indent': 2})

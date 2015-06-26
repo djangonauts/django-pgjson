@@ -197,6 +197,21 @@ We will implement support for more of the jsonb operators in the near future.
 See http://www.postgresql.org/docs/9.4/static/datatype-json.html for more
 information on what's possible, and feel free to send a pull request.
 
+Formatting JSON output
+^^^^^^^^^^^^^^^^^^^^^^
+
+To control the format of serialized JSON, you may define a `json_dump_args`
+dict for a field.  Its contents will be passed as arguments to `json.dumps`.
+
+----
+
+    data = JsonField(json_dump_args={'indent': 2, 'sort_keys': True})
+    
+----
+
+See https://docs.python.org/3/library/json.html#json.dumps
+for accepted arguments.
+
 Developers
 ----------
 

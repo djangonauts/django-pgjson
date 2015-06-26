@@ -14,29 +14,15 @@ import psycopg2
 import psycopg2.extensions
 import psycopg2.extras
 
-json_arguments = ('skipkeys', 'ensure_ascii', 'check_circular', 'allow_nan',
-                  'cls', 'indent', 'separators', 'sort_keys')
-# Note that the json argument `default` is not supported
-
-def extract_json_arguments(kwargs):
-    json_args = {}
-    for arg_name in json_arguments:
-        if arg_name in kwargs:
-            json_args[arg_name] = kwargs.pop(arg_name)
-    if 'json_default' in kwargs:
-        json_args['default'] = kwargs.pop('json_default')
-    return (json_args, kwargs)
-
 
 class JsonAdapter(psycopg2.extras.Json):
 
     def __init__(self, *args, **kwargs):
-        import ipdb; ipdb.set_trace()
-        (self.json_args, kwargs) = extract_json_arguments(kwargs)
+        self.json_dump_args = kwargs.pop('json_dump_args', {})
         super(JsonAdapter, self).__init__(*args, **kwargs)
 
     def dumps(self, obj):
-        return json.dumps(obj, cls=DjangoJSONEncoder)
+        return json.dumps(obj, cls=DjangoJSONEncoder, **self.json_dump_args)
 
 
 psycopg2.extensions.register_adapter(dict, JsonAdapter)
@@ -51,8 +37,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
-        import ipdb; ipdb.set_trace()
-        (self.json_args, kwargs) = extract_json_arguments(kwargs)
+        self.json_dump_args = kwargs.pop('json_dump_args', {})
         super(JsonField, self).__init__(*args, **kwargs)
 
     def db_type(self, connection):
@@ -63,7 +48,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
         return json.dumps(self.get_prep_value(value), cls=DjangoJSONEncoder,
-                          **self.json_args)
+                          **self.json_dump_args)
 
     def get_default(self):
         if self.has_default():
@@ -82,7 +67,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return value
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': jsonFormField(self.json_args)}
+        defaults = {'form_class': jsonFormField(self.json_dump_args)}
         defaults.update(kwargs)
         return super(JsonField, self).formfield(**defaults)
 
@@ -124,7 +109,7 @@ class JsonBField(JsonField):
         if lookup_type in ['jcontains']:
             if not isinstance(value, six.string_types):
                 value = json.dumps(value, cls=DjangoJSONEncoder,
-                                   **self.json_args)
+                                   **self.json_dump_args)
         if lookup_type in ['jhas_any', 'jhas_all']:
             if isinstance(value, six.string_types):
                 value = [value]
@@ -158,17 +143,18 @@ if django.get_version() >= '1.7':
 
 # return a class of JsonFormField
 
-def jsonFormField(json_args_):
+def jsonFormField(json_dump_args_):
     class JsonFormField(forms.CharField):
 
-        json_args = json_args_
+        json_dump_args = json_dump_args_
 
         widget = forms.Textarea
 
         def prepare_value(self, value):
             if isinstance(value, six.string_types):
                 return value
-            return json.dumps(value, cls=DjangoJSONEncoder, **self.json_args)
+            return json.dumps(value, cls=DjangoJSONEncoder,
+                              **self.json_dump_args)
     return JsonFormField
 
 
