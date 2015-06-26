@@ -70,8 +70,8 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return value
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': jsonFormField(indent=self.indent,
-                                                sort_keys=self.sort_keys)}
+        defaults = {'form_class': jsonFormField(indent_=self.indent,
+                                                sort_keys_=self.sort_keys)}
         defaults.update(kwargs)
         return super(JsonField, self).formfield(**defaults)
 
@@ -147,11 +147,11 @@ if django.get_version() >= '1.7':
 
 # return a class of JsonFormField
 
-def jsonFormField(indent=None, sort_keys=False):
+def jsonFormField(indent_=None, sort_keys_=False):
     class JsonFormField(forms.CharField):
 
-        indent = indent
-        sort_keys = sort_keys
+        indent = indent_
+        sort_keys = sort_keys_
 
         widget = forms.Textarea
 

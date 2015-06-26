@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+import json
 
 import django
 from django.contrib.admin import AdminSite, ModelAdmin
@@ -10,6 +11,7 @@ from django.core.serializers import serialize, deserialize
 from django_pgjson.fields import JsonField, JsonBField
 
 from .models import TextModel, TextModelB, TextModelWithDefault
+from .models import TextModelWithIndent
 
 
 class JsonFieldTests(TestCase):
@@ -187,6 +189,13 @@ if django.VERSION[:2] > (1, 6):
             qs = self.model_class.objects.filter(data__array_length=3)
             self.assertEqual(qs.count(), 1)
 
+        def test_indent(self):
+            obj1 = TextModelWithIndent.objects.create(
+                data={"name": "foo", "bar": {"baz": 1}})
+            qs = TextModelWithIndent.objects.filter(data__at_name="foo")
+            serialized_obj1 = serialize('json', qs)
+            self.assertIn('\n  "name":',
+                          json.loads(serialized_obj1)[0]['fields']['data'])
 
 class JsonBFieldTests(JsonFieldTests):
     def setUp(self):
