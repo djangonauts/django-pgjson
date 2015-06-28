@@ -55,7 +55,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         if self.has_default():
             if callable(self.default):
                 return self.default()
-            return self.default
+            return copy.copy(self.default)
         return None
 
     def to_python(self, value):
