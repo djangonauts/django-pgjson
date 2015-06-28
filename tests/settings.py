@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 import os, sys
 
 sys.path.insert(0, '..')

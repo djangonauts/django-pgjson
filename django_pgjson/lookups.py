@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 from django.utils.functional import cached_property
 from django.utils import six

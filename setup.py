@@ -1,28 +1,29 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 
 from setuptools import setup, find_packages
 
-description="""
+description = """
 PostgreSQL json field support for Django.
 """
 
 setup(
-    name = "django-pgjson",
-    version = "0.2.3",
-    url = "https://github.com/niwibe/djorm-pgjson",
-    license = "BSD",
-    platforms = ["OS Independent"],
-    description = description.strip(),
-    author = "Andrey Antukh",
-    author_email = "niwi@niwi.be",
-    keywords = "django, postgresql, pgsql, json, field",
-    maintainer = "Andrey Antukh",
-    maintainer_email = "niwi@niwi.be",
-    packages = find_packages(),
-    include_package_data = False,
-    install_requires = [],
-    zip_safe = False,
-    classifiers = [
+    name="django-pgjson",
+    version="0.2.3",
+    url="https://github.com/niwibe/djorm-pgjson",
+    license="BSD",
+    platforms=["OS Independent"],
+    description=description.strip(),
+    author="Andrey Antukh",
+    author_email="niwi@niwi.be",
+    keywords="django, postgresql, pgsql, json, field",
+    maintainer="Andrey Antukh",
+    maintainer_email="niwi@niwi.be",
+    packages=find_packages(),
+    include_package_data=False,
+    install_requires=[],
+    zip_safe=False,
+    classifiers=[
         "Development Status :: 4 - Beta",
         "Framework :: Django",
         "Intended Audience :: Developers",
