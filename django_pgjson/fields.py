@@ -11,24 +11,20 @@ import psycopg2.extras
 from django import forms
 from django.db import models
 from django.db.backends.postgresql_psycopg2.version import get_version
+from django.conf import settings
 from django.utils import six
 from django.utils.module_loading import import_string
 
-from .conf import settings
-
 
 def get_encoder_class():
-    return import_string(settings.PGJSON_ENCODER_CLASS)
+    encoder_cls_path = getattr(settings, "PGJSON_ENCODER_CLASS",
+                               "django.core.serializers.json.DjangoJSONEncoder")
+    return import_string(encoder_cls_path)
 
 
 class JsonAdapter(psycopg2.extras.Json):
-
-    def __init__(self, *args, **kwargs):
-        self.json_dump_args = kwargs.pop('json_dump_args', {})
-        super(JsonAdapter, self).__init__(*args, **kwargs)
-
     def dumps(self, obj):
-        return json.dumps(obj, cls=get_encoder_class(), **self.json_dump_args)
+        return json.dumps(obj, cls=get_encoder_class())
 
 
 psycopg2.extensions.register_adapter(dict, JsonAdapter)
@@ -43,7 +39,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
-        self.json_dump_args = kwargs.pop('json_dump_args', {})
+        self._options = kwargs.pop("options", {})
         super(JsonField, self).__init__(*args, **kwargs)
 
     def db_type(self, connection):
@@ -53,15 +49,13 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return json.dumps(self.get_prep_value(value), cls=get_encoder_class(),
-                          **self.json_dump_args)
+        return json.dumps(self.get_prep_value(value), cls=get_encoder_class(), **self._options)
 
     def get_default(self):
         if self.has_default():
             if callable(self.default):
                 return self.default()
             return self.default
-
         return None
 
     def to_python(self, value):
@@ -73,7 +67,7 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return value
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': jsonFormField(self.json_dump_args)}
+        defaults = {"form_class": JsonFormField}
         defaults.update(kwargs)
         return super(JsonField, self).formfield(**defaults)
 
@@ -83,19 +77,24 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
             return None
         return JsonAdapter(value)
 
-    if django.get_version() >= '1.7':
-        def get_transform(self, name):
-            from .lookups import KeyTransformFactory
+    def deconstruct(self):
+        name, path, args, kwargs = super(JsonField, self).deconstruct()
+        if self._options:
+            kwargs["options"] = self._options
+        return name, path, args, kwargs
 
-            transform = super(JsonField, self).get_transform(name)
-            if transform:
-                return transform
+    def get_transform(self, name):
+        from .lookups import KeyTransformFactory
 
-            if not re.match("at_\w+", name):
-                return None
+        transform = super(JsonField, self).get_transform(name)
+        if transform:
+            return transform
 
-            _, key = name.split("_", 1)
-            return KeyTransformFactory(key, self)
+        if not re.match("at_\w+", name):
+            return None
+
+        _, key = name.split("_", 1)
+        return KeyTransformFactory(key, self)
 
 
 class JsonBField(JsonField):
@@ -112,25 +111,24 @@ class JsonBField(JsonField):
         has requires string, but we can easily convert int to string
 
         """
-        if lookup_type in ['jcontains']:
+        if lookup_type in ["jcontains"]:
             if not isinstance(value, six.string_types):
-                value = json.dumps(value, cls=get_encoder_class(),
-                                   **self.json_dump_args)
-        if lookup_type in ['jhas_any', 'jhas_all']:
+                value = json.dumps(value, cls=get_encoder_class(), **self._options)
+        if lookup_type in ["jhas_any", "jhas_all"]:
             if isinstance(value, six.string_types):
                 value = [value]
             # Quickly coerce the following:
             #   any iterable to array
             #   non-string values to strings
-            value = ['%s' % v for v in value]
-        elif lookup_type in ['jhas'] and not isinstance(value, six.string_types):
+            value = ["%s" % v for v in value]
+        elif lookup_type in ["jhas"] and not isinstance(value, six.string_types):
             if isinstance(value, six.integer_types):
                 value = str(value)
             else:
-                raise TypeError('jhas lookup requires str or int')
+                raise TypeError("jhas lookup requires str or int")
         return value
 
-if django.get_version() >= '1.7':
+if django.get_version() >= "1.7":
     from .lookups import ExactLookup
     from .lookups import (ArrayLengthLookup, JsonBArrayLengthLookup, JsonBContainsLookup,
                           JsonBHasLookup, JsonBHasAnyLookup, JsonBHasAllLookup)
@@ -146,17 +144,13 @@ if django.get_version() >= '1.7':
     JsonBField.register_lookup(JsonBHasAllLookup)
 
 
-def jsonFormField(json_dump_args_):
-    class JsonFormField(forms.CharField):
-        json_dump_args = json_dump_args_
-        widget = forms.Textarea
+class JsonFormField(forms.CharField):
+    widget = forms.Textarea
 
-        def prepare_value(self, value):
-            if isinstance(value, six.string_types):
-                return value
-            return json.dumps(value, cls=get_encoder_class,
-                              **self.json_dump_args)
-    return JsonFormField
+    def prepare_value(self, value):
+        if isinstance(value, six.string_types):
+            return value
+        return json.dumps(value, cls=get_encoder_class())
 
 
 # South compatibility
@@ -166,19 +160,19 @@ try:
         (JsonField,),
         [],
         {
-            'blank': ['blank', {'default': True}],
-            'null': ['null', {'default': True}],
+            "blank": ["blank", {"default": True}],
+            "null": ["null", {"default": False}],
         },
-    )], (r'^django_pgjson\.fields\.JsonField',))
+    )], (r"^django_pgjson\.fields\.JsonField",))
 
     add_introspection_rules([(
         (JsonBField,),
         [],
         {
-            'blank': ['blank', {'default': True}],
-            'null': ['null', {'default': True}],
+            "blank": ["blank", {"default": True}],
+            "null": ["null", {"default": False}],
         },
-    )], (r'^django_pgjson\.fields\.JsonBField',))
+    )], (r"^django_pgjson\.fields\.JsonBField",))
 
 except ImportError:
     pass

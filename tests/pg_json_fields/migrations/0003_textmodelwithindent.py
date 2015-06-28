@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='TextModelWithIndent',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('data', django_pgjson.fields.JsonField()),
+                ('data', django_pgjson.fields.JsonField(options={'indent': 2})),
             ],
         ),
     ]
