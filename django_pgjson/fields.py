@@ -3,6 +3,7 @@
 import json
 import re
 import django
+import copy
 
 import psycopg2
 import psycopg2.extensions
