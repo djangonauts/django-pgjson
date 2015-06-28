@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
 
@@ -9,7 +9,7 @@ PostgreSQL json field support for Django.
 
 setup(
     name="django-pgjson",
-    version="0.2.3",
+    version="0.3.0",
     url="https://github.com/niwibe/djorm-pgjson",
     license="BSD",
     platforms=["OS Independent"],

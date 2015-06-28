@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.3.0
+-----
+
+Date: 2015-06-28
+
+- Bugfix related to south default value (thanks to @sibartlett)
+- Bugfix related to mutable default value.
+- Add the ability to overwrite the json encoder (thanks to @davidfischer-ch)
+- Add the ability to pass options to json.dumps (thanks to @catherinedevlin)
+
+
 0.2.3
 -----
 
