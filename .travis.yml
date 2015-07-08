@@ -1,0 +1,35 @@
+language: python
+
+python:
+  - "3.4"
+  - "3.3"
+  - "2.7"
+
+env:
+  - DJANGO="django==1.7.1"
+  - DJANGO="django==1.6.5"
+  - DJANGO="django==1.5.8"
+
+services:
+  - postgresql
+
+install:
+  - pip install $DJANGO --use-mirrors
+  - pip install psycopg2==2.5.3 --use-mirrors
+
+branches:
+  only:
+    - master
+
+script:
+  - python runtests.py
+
+before_script:
+  - createdb test
+
+notifications:
+  email:
+    recipients:
+      - niwi@niwi.be
+    on_success: change
+    on_failure: change
