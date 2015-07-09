@@ -1,7 +1,7 @@
 django-pgjson documentation
 ===========================
 Andrey Antukh, <niwi@niwi.be>
-0.2.0, 2014-09-13
+0.3.1, 2015-07-09
 
 Experimental jsonb support by Charl P. Botha <cpbotha@vxlabs.com>
 
@@ -30,9 +30,10 @@ Requirements
 ~~~~~~~~~~~~
 
 - Python 2.7 or 3.3+
-- Django 1.6 and 1.7
+- Django 1.6, 1.7 and 1.8
 - psycopg2 2.5.0+
 - PostgreSQL 9.2+
+
 
 Supports
 ~~~~~~~~
@@ -40,6 +41,7 @@ Supports
 - All json types. Including simple strings, floats, integers, booleans and null's.
 - Works well with python serialization.
 - Experimental: jsonb support in PostgreSQL >= 9.4
+
 
 Limitations
 ~~~~~~~~~~~
