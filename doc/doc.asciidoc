@@ -48,8 +48,8 @@ Limitations
 
 - Only supports PostgreSQL >= 9.2
 - PostgeSQL 9.4 is required for jsonb.
-- No django admin support at this momment.
-- Limited set of django 1.7 lookups (will be improved with postgresql 9.4)
+- No Django admin support at this moment.
+- Limited set of Django 1.7 lookups (will be improved with PostgreSQL 9.4)
 
 Stable
 ~~~~~~
@@ -117,7 +117,7 @@ class Something(models.Model):
 Now `data` attribute works like python standard dictionary.
 
 WARNING: PostgreSQL json field also can store arrays and any json valid value
-but, django_pgjson at this momment only handles python dict.
+but, django_pgjson at this moment only handles python dict.
 
 
 Querying
@@ -126,7 +126,7 @@ Querying
 Key or Index lookup
 ^^^^^^^^^^^^^^^^^^^
 
-.If you are using django 1.7, you can use index or key lookup for filtering
+.If you are using Django 1.7, you can use index or key lookup for filtering
 [source, pycon]
 ----
 >>> Something.object.bulk_create([
@@ -178,14 +178,14 @@ With same data as previous example:
 ----
 
 
-NOTE: At this momment, with postgresql 9.3 as last stable version there is only a
-limited set of native operators for json type. When postgresql 9.4 is released,
+NOTE: At this moment, with PostgreSQL 9.3 as last stable version there is only a
+limited set of native operators for json type. When PostgreSQL 9.4 is released,
 more lookups will be added.
 
 jsonb containment lookup
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you are using django 1.7 and PostgreSQL >= 9.4, you can use the special jsonb
+If you are using Django 1.7 and PostgreSQL >= 9.4, you can use the special jsonb
 containment operator, which can be accelerated by a GiN index on the jsonb
 field.
 
@@ -270,4 +270,4 @@ How to contribute
 Deprecation policy
 ~~~~~~~~~~~~~~~~~~
 
-At any momment of time, django-pgjson developers will mantain support for two versions of django.
+At any moment of time, django-pgjson developers will maintain support for two versions of Django.
