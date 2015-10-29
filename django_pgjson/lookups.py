@@ -18,6 +18,14 @@ class KeyTransform(Transform):
 
         self.base_field = base_field
 
+    def relabeled_clone(self, relabels):
+        return self.__class__(
+            self.key,
+            self.base_field,
+            self.lhs.relabeled_clone(relabels),
+            ['at_%s' % self.key]
+        )
+
     def as_sql(self, qn, connection):
         lhs, params = qn.compile(self.lhs)
 
