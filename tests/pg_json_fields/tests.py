@@ -127,7 +127,8 @@ class JsonFieldTests(TestCase):
         self.assertIsInstance(form_field, FakeFieldClass)
 
 
-if django.VERSION[:2] > (1, 6):
+if django.VERSION >= (1, 7):
+
     class JsonLookupsFieldTests(TestCase):
         def setUp(self):
             self.model_class = TextModel
@@ -216,8 +217,6 @@ if django.VERSION[:2] > (1, 6):
             self.assertIn('\n  "name":',
                           json.loads(serialized_obj1)[0]['fields']['data'])
 
-
-if django.VERSION >= (1, 7):
 
     class JsonBFieldTests(JsonFieldTests):
         def setUp(self):

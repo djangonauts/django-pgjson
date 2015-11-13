@@ -15,7 +15,7 @@ from django.db.backends.postgresql_psycopg2.version import get_version
 from django.conf import settings
 from django.utils import six
 
-if django.get_version() >= "1.7":
+if django.VERSION >= (1, 7):
     from django.utils.module_loading import import_string
 else:
     from django.utils.module_loading import import_by_path as import_string
@@ -142,7 +142,7 @@ class JsonBField(JsonField):
                 raise TypeError("jhas lookup requires str or int")
         return value
 
-if django.get_version() >= "1.7":
+if django.VERSION >= (1, 7):
     from .lookups import ExactLookup
     from .lookups import (ArrayLengthLookup, JsonBArrayLengthLookup, JsonBContainsLookup,
                           JsonBHasLookup, JsonBHasAnyLookup, JsonBHasAllLookup)
