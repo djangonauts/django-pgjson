@@ -40,7 +40,13 @@ psycopg2.extras.register_default_json(loads=json.loads)
 psycopg2.extras.register_json(loads=json.loads, oid=3802, array_oid=3807)
 
 
-class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
+if django.VERSION < (1, 8):
+    base_field_class = six.with_metaclass(models.SubfieldBase, models.Field)
+else:
+    base_field_class = models.Field
+
+
+class JsonField(base_field_class):
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
@@ -70,6 +76,9 @@ class JsonField(six.with_metaclass(models.SubfieldBase, models.Field)):
             except ValueError:
                 pass
         return value
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def formfield(self, **kwargs):
         defaults = {"form_class": JsonFormField}

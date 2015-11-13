@@ -73,8 +73,14 @@ class JsonFieldTests(TestCase):
         self.assertIsNone(obj.data)
 
     def test_uuid_not_supported_by_default_json_encoder(self):
-        with self.assertRaises(TypeError):
-            self.model_class.objects.create(data=uuid.uuid4())
+        if django.VERSION < (1, 8):
+            with self.assertRaises(TypeError):
+                self.model_class.objects.create(data=uuid.uuid4())
+        else:
+            uid = uuid.uuid4()
+            obj = self.model_class.objects.create(data=uid)
+            obj = self.model_class.objects.get(pk=obj.pk)
+            self.assertEqual(obj.data, str(uid))
 
     @override_settings(PGJSON_ENCODER_CLASS='pg_json_fields.encoders.CustomJSONEncoder')
     def test_uuid_support_with_custom_json_encoder(self):
@@ -209,6 +215,7 @@ if django.VERSION[:2] > (1, 6):
             serialized_obj1 = serialize('json', qs)
             self.assertIn('\n  "name":',
                           json.loads(serialized_obj1)[0]['fields']['data'])
+
 
 class JsonBFieldTests(JsonFieldTests):
     def setUp(self):
